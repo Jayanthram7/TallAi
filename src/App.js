@@ -12,7 +12,7 @@ import HomeP2 from "./Home/HomeP2"
 import HomeP3 from "./Home/HomeP3"
 import HomeP4 from "./Home/HomeP4"
 import HomeP5 from "./Home/HomeP5"
-import Text from "./TextPDF/FileUpload"
+
 
 
 
@@ -30,7 +30,7 @@ function App() {
         <Route path="/homeEmp3" element={<HomeP3 />} />
         <Route path="/homeEmp4" element={<HomeP4 />} />
         <Route path="/homeEmp5" element={<HomeP5 />} />
-        <Route path="/text" element={<Text />} />
+    
         <Route path="/call-records" element={<CallRecords />} />
         <Route path="/reqservice" element={<ReqService />} /> {/* SignIn as default */}
         <Route path="/signin" element={<SignIn />} /> {/* Add SignUp route */}
