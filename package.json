@@ -10,6 +10,7 @@
     "cra-template": "1.2.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.4.7",
+    "lucide-react": "^0.476.0",
     "pdfjs-dist": "^3.0.279",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
