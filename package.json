@@ -6,6 +6,7 @@
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
     "@shadcn/ui": "^0.0.4",
+    "axios": "^1.8.1",
     "cra-template": "1.2.0",
     "file-saver": "^2.0.5",
     "pdfjs-dist": "^3.0.279",
