@@ -1,99 +1,188 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import Google from '../Assets/google.svg.svg';
+import Apple from '../Assets/apple.svg.svg';
+import TallAi from '../Assets/TallAi.png';
+import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
-export default function SignIn() {
-  const navigate = useNavigate(); // Initialize the useNavigate hook
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Register = () => {
+    const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: '',
+    company: '',
+    serialNumber: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+  });
 
-  // Form submit handler
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent default form submission
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    // Basic validation (optional)
-    if (email && password) {
-      // Simulate a successful login (you can replace this with your real authentication logic)
-      navigate('/home'); // Navigate to the HomePage on successful login
-    } else {
-      alert('Please enter both email and password');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Check if passwords match
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Registration successful!");
+        navigate('/');
+      } else {
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred. Please try again later.");
     }
   };
 
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <img
-          alt="Your Company"
-          src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-          className="mx-auto h-10 w-auto"
-        />
-        <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">
-          Sign in to your account
-        </h2>
-      </div>
-
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-900">
-              Email address
-            </label>
-            <div className="mt-2">
+    <div className="flex min-h-screen">
+      {/* Left Section: Signup Form */}
+      <div className="w-1/2 bg-gray-900 text-white flex flex-col justify-center px-12">
+        <h1 className="text-3xl flex font-bold mb-4">
+          Register for TallAi
+          <img src={TallAi} className="w-10 h-10 ml-2" alt="TallAi Logo" />
+        </h1>
+        <div className="flex space-x-4 mb-6">
+          <button className="flex items-center justify-center w-full py-2 border border-gray-700 rounded-lg bg-gray-800 hover:bg-gray-700">
+            <img src={Google} className="w-8 h-8 mr-1" alt="Google Icon" /> Sign up with Google
+          </button>
+          <button className="flex items-center justify-center w-full py-2 border border-gray-700 rounded-lg bg-gray-800 hover:bg-gray-700">
+            <img src={Apple} alt="Apple Icon" className="w-5 h-5 mr-2" />
+            Sign up with Apple
+          </button>
+        </div>
+        <div className="text-center text-gray-400 mb-6">or</div>
+        <form className="space-y-2" onSubmit={handleSubmit}>
+          <div className="flex flex-row space-x-6">
+            <div>
+              <label className="block text-lg font-medium mb-2">What should we call you?</label>
               <input
-                id="email"
-                name="email"
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="e.g. Mr / Mrs . John Doe"
+                className="w-full px-8 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium mb-2">Company</label>
+              <input
+                type="text"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                placeholder="e.g. TallAi"
+                className="w-full px-6 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-lg font-medium mb-2">Serial Number</label>
+              <input
+                type="text"
+                name="serialNumber"
+                value={formData.serialNumber}
+                onChange={handleChange}
+                placeholder="e.g. 123456789"
+                className="w-full px-6 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          <div className="flex flex-row space-x-6">
+            <div>
+              <label className="block text-lg font-medium mb-2">Your email</label>
+              <input
                 type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)} // Bind email input value
-                autoComplete="email"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="name@company.com"
+                className="w-full px-40 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-900">
-                Password
-              </label>
-              <div className="text-sm">
-                <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                  Forgot password?
-                </a>
-              </div>
-            </div>
-            <div className="mt-2">
+            <div>
+              <label className="block text-lg font-medium mb-2">Phone Number</label>
               <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)} // Bind password input value
-                autoComplete="current-password"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm"
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="e.g. 7373458585"
+                className="w-full px-6 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
-
           <div>
-            <button
-              type="submit"
-              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Sign in
-            </button>
+            <label className="block text-lg font-medium mb-2">Set password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
           </div>
+          <div>
+            <label className="block text-lg font-medium mb-2">Confirm Password</label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="••••••••"
+              className="w-full px-4 py-2 mb-6 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button type="submit" className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-normal">
+            Create an account
+          </button>
         </form>
-
-        <p className="mt-10 text-center text-sm text-gray-500">
-          Not a member?{' '}
-          <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-            Register
-          </a>
+        <p className="mt-4 text-base text-gray-400">
+  Already have an account? 
+  <Link to="/signin" className="text-blue-500">
+    Login here
+  </Link>
+</p>
+      </div>
+      <div className="w-1/2 bg-gradient-to-b from-indigo-400 to-indigo-900 text-white flex flex-col justify-center px-12">
+      
+      <div className='flex  items-center'>
+      <img src={TallAi} className='w-16 h-16 mr-2'></img>
+      <h1 className="text-6xl font-bold mb-4 mt-2">TallAi.</h1>
+      </div>
+        <h1 className="text-4xl font-bold mb-4">Harness the Power of Ai for your Bussiness.</h1>
+        <p className="text-lg mb-6">
+The true potential of Ai is unlocked when it is used to solve real-world problems. TallAi is a platform that helps you leverage the power of Ai to solve your business problems and tap into your bussiness insights. Sign up today and start your Ai journey.
         </p>
+        <div className="flex items-center">
+          <img
+           
+          />
+          <span className="text-xl font-light">Over 7k Happy Customers</span>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default Register;

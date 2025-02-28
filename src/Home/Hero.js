@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Dialog, DialogPanel } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Link } from "react-router-dom"; // Import Link from React Router
 
 const navigation = [
   { name: 'Product', href: '#' },
@@ -49,6 +50,7 @@ export default function Example() {
   <h1 className="text-8xl font-semibold tracking-tight text-gray-100 sm:text-9xl relative z-10">
     TallAi.
   </h1>
+  
   {/* Aurora Effect */}
   <div
     className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 blur-3xl opacity-50
@@ -72,6 +74,7 @@ export default function Example() {
                 Learn more <span aria-hidden="true">→</span>
               </a>
             </div>
+            
           </div>
         </div>
         <div

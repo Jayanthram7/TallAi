@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Navbar1 from "../Home/NavbarAdmin";
+import Navbar1 from "../Home/NavbarEmp";
 import axios from "axios";
 import { useEfect, useRef } from "react";
 import excel from "../Assets/excel.png";
@@ -658,11 +658,7 @@ const dropdownRef = useRef(null);
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     >
                       <option value=""></option>
-                      <option value="Person 1">Person 1</option>
-                      <option value="Person 2">Person 2</option>
                       <option value="Person 3">Person 3</option>
-                      <option value="Person 4">Person 4</option>
-                      <option value="Person 5">Person 5</option>
                     </select>
                   </div>
                 </div>
@@ -952,54 +948,10 @@ const dropdownRef = useRef(null);
         </div>
       )}
       {/* Export to Excel Button */}
-      <button
-        onClick={() => setShowDateModal(true)}
-        className="px-4 py-2 ml-3 flex font-semibold justify-center h-12 items-center rounded-md bg-green-600 text-white hover:bg-green-700"
-      >
-        <img src={excel} className="mr-2" alt="Excel Icon" />
-        Export to Excel
-      </button>
+      
 
       {/* Date Range Modal */}
-      {showDateModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-md shadow-lg">
-            <h3 className="text-lg font-semibold mb-4">Select Date Range</h3>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Start Date:</label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">End Date:</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
-              />
-            </div>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowDateModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleExport}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-              >
-                Export
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+     
 
       
               </div>
@@ -1063,41 +1015,40 @@ const dropdownRef = useRef(null);
     <div className="max-w-5xl ml-20 overflow-hidden bg-white shadow sm:rounded-lg">
       <div className="divide-y divide-gray-200">
         <div className="max-h-[700px] overflow-y-auto relative">
-          {filteredRecords1.map((record) => (
-            <div key={record._id} className="px-4 py-4 sm:px-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-lg font-semibold text-gray-900">{record.company}</p>
-                  <p className="text-sm text-gray-500">Phone: {record.phoneNumber}</p>
-                  <p className="text-sm font-semibold text-gray-700">Caller Name: {record.callerName}</p>
-                  <p className="text-sm text-gray-500">Email: {record.email}</p>
-
-                  <p className="text-sm text-gray-500">Serial Number: {record.serialNumber}</p>
-                  <p className="text-sm text-gray-500">Type Of Service: {record.typeOfService}</p>
-                  <p className="text-sm text-gray-500">Reason: {record.reason}</p>
-                  <p className="text-sm text-gray-500">Assigned to: {record.assignedTo}</p>
-                  <p
-                    className={`text-sm px-2 py-1 rounded-md ${
-                      record.statusOfCall === "Complete"
-                        ? "bg-green-500 text-white"
-                        : record.statusOfCall === "Incomplete"
-                        ? "bg-red-500 text-white"
-                        : record.statusOfCall === "Requested"
-                        ? "bg-blue-500 text-white"
-                        : record.statusOfCall === "To Bill"
-                        ? "bg-blue-500 text-white"
-                        : "bg-yellow-500 text-black"
-                    }`}
-                  >
-                    Status: {record.statusOfCall}
-                  </p>
-
-                  <p className="text-sm text-gray-500">Token num: {record.tokenNumber}</p>
-                  <p className="text-sm text-gray-500">Date: {formatDate(record.callTime)}</p>
-                </div>
-
-                {/* Options Button */}
-                <div className="relative">
+          {filteredRecords1
+            .filter((record) => record.assignedTo === "Person 3")
+            .map((record) => (
+              <div key={record._id} className="px-4 py-4 sm:px-6">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-lg font-semibold text-gray-900">{record.company}</p>
+                    <p className="text-sm text-gray-500">Phone: {record.phoneNumber}</p>
+                    <p className="text-sm font-semibold text-gray-700">Caller Name: {record.callerName}</p>
+                    <p className="text-sm text-gray-500">Email: {record.email}</p>
+                    <p className="text-sm text-gray-500">Serial Number: {record.serialNumber}</p>
+                    <p className="text-sm text-gray-500">Type Of Service: {record.typeOfService}</p>
+                    <p className="text-sm text-gray-500">Reason: {record.reason}</p>
+                    <p className="text-sm text-gray-500">Assigned to: {record.assignedTo}</p>
+                    <p
+                      className={`text-sm px-2 py-1 rounded-md ${
+                        record.statusOfCall === "Complete"
+                          ? "bg-green-500 text-white"
+                          : record.statusOfCall === "Incomplete"
+                          ? "bg-red-500 text-white"
+                          : record.statusOfCall === "Requested"
+                          ? "bg-blue-500 text-white"
+                          : record.statusOfCall === "To Bill"
+                          ? "bg-blue-500 text-white"
+                          : "bg-yellow-500 text-black"
+                      }`}
+                    >
+                      Status: {record.statusOfCall}
+                    </p>
+                    <p className="text-sm text-gray-500">Token num: {record.tokenNumber}</p>
+                    <p className="text-sm text-gray-500">Date: {formatDate(record.callTime)}</p>
+                  </div>
+                  {/* Options Button */}
+                  <div className="relative">
                   <button
                     onClick={() => setShowOptionsForRecord(showOptionsForRecord === record._id ? null : record._id)}
                     className="px-3 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300"
@@ -1131,20 +1082,7 @@ const dropdownRef = useRef(null);
                         </div>
                       )}
 
-                      <div className="block w-full px-4 py-2 text-left text-sm text-indigo-600">
-                        Change Assigned To
-                        <select
-                          onChange={(e) => changeAssignedTo(record._id, e.target.value)}
-                          className="w-full px-3 py-1 bg-gray-100 rounded-md"
-                        >
-                          <option value=""></option>
-                          <option value="Person 1">Person 1</option>
-                          <option value="Person 2">Person 2</option>
-                          <option value="Person 3">Person 3</option>
-                          <option value="Person 4">Person 4</option>
-                          <option value="Person 5">Person 5</option>
-                        </select>
-                      </div>
+                      
                       <button
                         onClick={() => changeStatusOfCall(record._id, "Complete")}
                         className="block w-full px-4 py-2 text-left text-sm text-green-500 bg-white rounded-md hover:bg-gray-100"
@@ -1152,298 +1090,76 @@ const dropdownRef = useRef(null);
                         Mark Call as Completed
                       </button>
 
-                      <button
-                        onClick={() => deleteRecord(record._id)}
-                        className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-                      >
-                        Delete
-                      </button>
+                     
                     </div>
                   )}
                 </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>
   </div>
 )}
 
-          
-              {/* Table View */}
-              {activeView === "table" && (
+{activeView === "table" && (
   <div className="overflow-x-auto ">
-    <div className="">
-    {/* Search Section */}
-    
-
-    <table className="min-w-6xl ml-10 bg-white shadow-md rounded-lg">
-      <thead className="bg-indigo-700 bg-opacity-85 text-white rounded-xl">
-        <tr>
-          <th className="px-2 py-1 text-left border-r font-medium">Sl. No.</th>
-          <th
-            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
-            onClick={() => handleSort("company")}
-          >
-            Company {renderSortArrow("company")}
-          </th>
-          <th
-            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
-            onClick={() => handleSort("callerName")}
-          >
-            Caller Name {renderSortArrow("callerName")}
-          </th>
-          <th
-            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
-            onClick={() => handleSort("phoneNumber")}
-          >
-            Phone Number {renderSortArrow("phoneNumber")}
-          </th>
-          <th
-            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
-            onClick={() => handleSort("serialNumber")}
-          >
-            Serial Number {renderSortArrow("serialNumber")}
-          </th>
-          <th
-            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
-            onClick={() => handleSort("typeOfService")}
-          >
-            Type of Service {renderSortArrow("typeOfService")}
-          </th>
-          <th
-            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
-            onClick={() => handleSort("assignedTo")}
-          >
-            Assigned To {renderSortArrow("assignedTo")}
-          </th>
-          <th
-            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
-            onClick={() => handleSort("callTime")}
-          >
-            Date {renderSortArrow("callTime")}
-          </th>
-          <th
-            className="px-3 py-1 text-left border-r font-medium cursor-pointer"
-            onClick={() => handleSort("statusOfCall")}
-          >
-            Status {renderSortArrow("statusOfCall")}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {paginatedRecords
-          .filter((record) => {
-            const searchValue = searchQuery.toLowerCase();
-            if (searchBy === "company") {
-              return record.company && record.company.toLowerCase().includes(searchValue);
-            }
-            if (searchBy === "phoneNumber") {
-              return record.phoneNumber && record.phoneNumber.toLowerCase().includes(searchValue);
-            }
-            if (searchBy === "serialNumber") {
-              return record.serialNumber && record.serialNumber.toLowerCase().includes(searchValue);
-            }
-            return true;
-          })
-          .map((record, index) => (
-            <tr
-              key={record._id}
-              className="hover:text-indigo-600 overflow-y-auto max-h-[600px] hover:font-semibold hover:border-l-indigo-600 hover:z-auto transition ease-in-out"
-            >
-              <td className="px-2 py-1 font-semibold border-t">
-                    {(currentPage - 1) * recordsPerPage + index + 1}
-                  </td>
-
-              <td className="px-2 py-1 font-semibold border-t">{record.company}</td>
-              <td className="px-2 py-1 border-t">{record.callerName}</td>
-              <td className="px-2 py-1 border-t">{record.phoneNumber}</td>
-              <td className="px-2 py-1 border-t">{record.serialNumber}</td>
-              <td className="px-2 py-1 border-t">{record.typeOfService}</td>
-              <td className="px-2 py-1 border-t">{record.assignedTo}</td>
-              <td className="px-2 py-1 border-t">{formatDate(record.callTime)}</td>
-              <td
-                className={`px-3 py-1 border-t text-sm ${
-                  record.statusOfCall === "Complete"
-                    ? "text-green-600 bg-green-100"
-                    : record.statusOfCall === "Incomplete"
-                    ? "text-red-600 bg-red-100"
-                    : record.statusOfCall === "To Bill"
-                    ? "text-orange-600 bg-orange-100"
-                    : record.statusOfCall === "Requested"
-                    ? "text-indigo-600 bg-indigo-100"
-                    : "text-yellow-800 bg-yellow-100"
-                }`}
-              >
-                {record.statusOfCall}
-              </td>
-              <td className="relative px-3 py-1">
-                <button
-                  onClick={() =>
-                    setShowOptionsForRecord(
-                      showOptionsForRecord === record._id ? null : record._id
-                    )
-                  }
-                  className="flex items-center gap-2 px-3 py-1 text-indigo-600 border-none shadow-none rounded-md hover:bg-gray-100"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M16.862 3.487a2.25 2.25 0 113.182 3.182L7.5 19.213l-4.125.458.458-4.125L16.862 3.487z"
-                    />
-                  </svg>
-                </button>
-
-                {/* Options Menu */}
-                {showOptionsForRecord === record._id && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute right-0 top-6 w-48 bg-white rounded-md shadow-lg z-50"
-                    style={{ transform: "translateY(-50%)" }}
-                  >
-                    <button
-                      onClick={() => setEditingStatus(record._id)}
-                      className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
-                    >
-                      Change status
-                    </button>
-                    {editingStatus === record._id && (
-                      <div className="block w-full px-4 py-2 text-left text-sm">
-                        <input
-                          type="text"
-                          placeholder="Enter new status"
-                          className="w-full px-3 py-1 border rounded-md"
-                          value={statusInput}
-                          onChange={(e) => setStatusInput(e.target.value)}
-                        />
-                        <button
-                          onClick={() => changeStatusOfCall(record._id, statusInput)}
-                          className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
-                        >
-                          Save
-                        </button>
-                      </div>
-                    )}
-
-                    <div className="block w-full px-4 py-2 text-left text-sm text-indigo-600">
-                      Change Assigned To
-                      <select
-                        onChange={(e) => changeAssignedTo(record._id, e.target.value)}
-                        className="w-full px-3 py-1 bg-gray-100 rounded-md"
-                      >
-                        <option value=""></option>
-                        <option value="Person 1">Person 1</option>
-                        <option value="Person 2">Person 2</option>
-                        <option value="Person 3">Person 3</option>
-                        <option value="Person 4">Person 4</option>
-                        <option value="Person 5">Person 5</option>
-                      </select>
-                    </div>
-                    <button
-                      onClick={() => changeStatusOfCall(record._id, "To Bill")}
-                      className="block w-full px-4 py-2 text-left text-sm text-orange-500 bg-white rounded-md hover:bg-gray-100"
-                    >
-                      To be billed
-                    </button>
-                    <button
-  onClick={() => {
-    // Validation to check if any field is empty
-    const isAnyFieldEmpty = !record.company ||
-      !record.callerName ||
-      !record.phoneNumber ||
-      !record.serialNumber ||
-      !record.typeOfService ||
-      !record.assignedTo ||
-      !record.callTime ||
-      !record.statusOfCall;
-
-    if (isAnyFieldEmpty) {
-      alert("Please ensure all fields are filled before marking the call as completed.");
-      return; // Stop further execution
-    }
-
-    // Proceed to change status if validation passes
-    changeStatusOfCall(record._id, "Complete");
-  }}
-  className="block w-full px-4 py-2 text-left text-sm text-green-500 bg-white rounded-md hover:bg-gray-100"
->
-  Mark Call as Completed
-</button>
-
-
-                    <button
-                      onClick={() => deleteRecord(record._id)}
-                      className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </td>
-            </tr>
-          ))}
-      </tbody>
-    </table>
-  </div>
-  <div className="flex justify-center items-center mt-4">
-  <button
-    onClick={() => handlePageChange(currentPage - 1)}
-    disabled={currentPage === 1}
-    className="px-3 py-1 bg-white text-indigo-600  disabled:text-gray-300"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth="1.5"
-      stroke="currentColor"
-      className="w-5 h-5"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15 19l-7-7 7-7"
-      />
-    </svg>
-  </button>
-
-  <span className="text-sm">
-    {currentPage} / {totalPages}
-  </span>
-
-  <button
-    onClick={() => handlePageChange(currentPage + 1)}
-    disabled={currentPage === totalPages}
-    className="px-3 py-1 text-indigo-600 rounded-md disabled:text-gray-300"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth="1.5"
-      stroke="currentColor"
-      className="w-5 h-5"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9 5l7 7-7 7"
-      />
-    </svg>
-  </button>
-</div>
-
+    <div className="overflow-y-auto max-h-[600px]">
+      <table className="min-w-6xl ml-10 bg-white shadow-md rounded-lg">
+        <thead className="bg-indigo-600 bg-opacity-85 text-white rounded-xl">
+          <tr>
+            <th className="px-2 py-1 text-left border-r font-medium">Sl. No.</th>
+            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("company")}>
+              Company {renderSortArrow("company")}
+            </th>
+            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("callerName")}>
+              Caller Name {renderSortArrow("callerName")}
+            </th>
+            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("phoneNumber")}>
+              Phone Number {renderSortArrow("phoneNumber")}
+            </th>
+            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("serialNumber")}>
+              Serial Number {renderSortArrow("serialNumber")}
+            </th>
+            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("typeOfService")}>
+              Type of Service {renderSortArrow("typeOfService")}
+            </th>
+            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("assignedTo")}>
+              Assigned To {renderSortArrow("assignedTo")}
+            </th>
+            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("callTime")}>
+              Date {renderSortArrow("callTime")}
+            </th>
+            <th className="px-3 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("statusOfCall")}>
+              Status {renderSortArrow("statusOfCall")}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedRecords
+            .filter((record) => record.assignedTo === "Person 3")
+            .map((record, index) => (
+              <tr key={record._id} className="hover:text-indigo-600 hover:font-semibold hover:border-l-indigo-600 hover:z-auto transition ease-in-out">
+                <td className="px-2 py-1 font-semibold border-t">{(currentPage - 1) * recordsPerPage + index + 1}</td>
+                <td className="px-2 py-1 font-semibold border-t">{record.company}</td>
+                <td className="px-2 py-1 border-t">{record.callerName}</td>
+                <td className="px-2 py-1 border-t">{record.phoneNumber}</td>
+                <td className="px-2 py-1 border-t">{record.serialNumber}</td>
+                <td className="px-2 py-1 border-t">{record.typeOfService}</td>
+                <td className="px-2 py-1 border-t">{record.assignedTo}</td>
+                <td className="px-2 py-1 border-t">{formatDate(record.callTime)}</td>
+                <td className={`px-3 py-1 border-t text-sm ${record.statusOfCall === "Complete" ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}>
+                  {record.statusOfCall}
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+    </div>
   </div>
 )}
+
 
     
 

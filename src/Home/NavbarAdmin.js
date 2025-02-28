@@ -3,12 +3,11 @@ import { Bars3Icon, XMarkIcon, BellIcon } from "@heroicons/react/24/outline";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { Link } from "react-router-dom"; // Import Link from React Router
 import account from "../Assets/Account-Login.svg"; // Ensure this path is correct
-import TallAi from "../Assets/TallAi.png"; // Ensure this path is correct
 
 const navigation = [
-  { name: "TallAi", path: "/home", current: false }, // Updated path to point to /home
-  { name: "Invoice to Tally", path: "../Call records/Callrecords", current: false },
-  { name: "Data Visualization", path: "/Data-Vis", current: false },
+  { name: "Dashboard", path: "/home2", current: false }, // Updated path to point to /home
+  { name: "Invoice to Tally", path: "https://v0-bill-extractor-e9mjzu.vercel.app/", current: false },
+  { name: "Data Visualization", path: "https://v0-next-js-charts-jikzd8zeied-jhegnp.vercel.app/", current: false },
   { name: "Call Records", path: "/call-records", current: false }, // Update to use path
 ];
 
@@ -18,7 +17,7 @@ function classNames(...classes) {
 
 export default function Navbar() {
   return (
-    <Disclosure as="nav" className="bg-transparent fixed top-0 left-0 w-full z-50 h-16">
+    <Disclosure as="nav" className="bg-gray-900 fixed top-0 left-0 w-full z-50 h-16">
       <div className="mx-auto  px-2 sm:px-6 lg:px-8 h-full">
         <div className="relative flex h-full items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -34,18 +33,33 @@ export default function Navbar() {
             <div className="flex shrink-0 items-center">
               <img
                 alt="Your Company"
-                src={TallAi} // Use the TallAi logo
-                className="h-8 mt-1 w-auto"
+                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500"
+                className="h-8 w-auto"
               />
             </div>
-            <div className="text-3xl text-white font-semibold ml-2">
-              TallAi
+            <div className="hidden sm:ml-6 sm:block">
+              <div className="flex space-x-4">
+                {navigation.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.path} // Use the path for navigation
+                    className={classNames(
+                      item.current
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                      "rounded-md px-3 py-2 text-sm font-medium"
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             <button
               type="button"
-              className="relative rounded-full  p-1 text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+              className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
             >
               <span className="absolute -inset-1.5" />
               <span className="sr-only">View notifications</span>
@@ -55,13 +69,13 @@ export default function Navbar() {
             {/* Profile dropdown */}
             <Menu as="div" className="relative ml-3">
               <div>
-                <MenuButton className="relative flex rounded-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                   <span className="absolute -inset-1.5" />
                   <span className="sr-only">Open user menu</span>
                   <img
                     alt=""
                     src={account}
-                    className="size-8 rounded-full text-white hover:text-white"
+                    className="size-8 rounded-full text-gray-400 hover:text-white"
                   />
                 </MenuButton>
               </div>
@@ -86,29 +100,18 @@ export default function Navbar() {
                   </a>
                 </MenuItem>
                 <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Sign out
-                  </a>
-                </MenuItem>
+  <Link
+    to="/"
+    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+  >
+    Sign out
+  </Link>
+</MenuItem>
               </MenuItems>
             </Menu>
 
             {/* Register Button */}
-            <Link
-              to="/Register" // Navigate to the signup page
-              className="ml-4 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              Register
-            </Link>
-            <Link
-              to="/signin" // Navigate to the signup page
-              className="ml-4 rounded-md bg-white px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              Login
-            </Link>
+            <div className="rounded-md px-3 py-2 text-base font-medium text-gray-200">Welcome , Admin</div>
           </div>
         </div>
       </div>
