@@ -182,8 +182,8 @@ export default function Hero() {
   </div>
 
   {/* Left & Right Shadows */}
-  <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[20%] bg-gradient-to-r from-black sm:block" />
-  <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[20%] bg-gradient-to-l from-black sm:block" />
+  <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[20%] bg-gradient-to-r from-gray-950 sm:block" />
+  <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[20%] bg-gradient-to-l from-gray-950 sm:block" />
 </div>
 
       </div>

@@ -145,11 +145,11 @@ function BeamsBackground({ className, intensity = "strong" }: AnimatedGradientBa
     }, [intensity]);
 
     return (
-<div className={cn("absolute top-0 left-0 w-full min-h-screen overflow-hidden bg-neutral-950", className)}>
-<canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-auto" style={{ filter: "blur(60px)" }} />
+<div className={cn("absolute top-0 left-0 w-full min-h-screen overflow-hidden bg-gray-950", className)}>
+<canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-auto" style={{ filter: "blur(20px)" }} />
 
             <motion.div
-                className="absolute inset-0 bg-neutral-950/5"
+                className="absolute inset-0 bg-gray-950/5"
                 animate={{ opacity: [0.1, 0.2, 0.1] }}
                 transition={{ duration: 8, ease: "easeInOut", repeat: Infinity }}
                 style={{ backdropFilter: "blur(30px)" }}

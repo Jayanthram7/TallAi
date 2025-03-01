@@ -4,6 +4,8 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { Link } from "react-router-dom"; // Import Link from React Router
 import account from "../Assets/Account-Login.svg"; // Ensure this path is correct
 import TallAi from "../Assets/TallAi.png"; // Ensure this path is correct
+import { ArrowRight } from "lucide-react";
+import { UserPlus } from "lucide-react";
 
 const navigation = [
   { name: "TallAi", path: "/home", current: false }, // Updated path to point to /home
@@ -98,17 +100,17 @@ export default function Navbar() {
 
             {/* Register Button */}
             <Link
-              to="/Register" // Navigate to the signup page
-              className="ml-4 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              Register
-            </Link>
+  to="/Register"
+  className="ml-4 flex items-center gap-2 rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white shadow-md transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2"
+>
+  <UserPlus size={16} /> Register
+</Link>
             <Link
-              to="/signin" // Navigate to the signup page
-              className="ml-4 rounded-md bg-white px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              Login
-            </Link>
+  to="/signin"
+  className="ml-4 flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-black shadow-md transition hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+>
+  Login <ArrowRight size={16} />
+</Link>
           </div>
         </div>
       </div>

@@ -4,14 +4,14 @@ import BeamsBackground from "./beams-bg.tsx";
 
 export function HeroScrollDemo() {
   return (
-    <div className="flex-col">
+    <div className="flex flex-col items-center">
       {/* Background Effect */}
-      <div className="relative z-10">
+      <div className="relative z-10 w-full px-4 sm:px-6 md:px-8 mt-6 sm:mt-10">
         <ContainerScroll
           titleComponent={
-            <h1 className="text-4xl font-semibold text-white dark:text-white">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white dark:text-white text-center">
               Introducing.<br />
-              <span className="text-[10rem] font-bold mt-1 leading-none">
+              <span className="text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] font-bold mt-1 leading-none block">
                 TallAi
               </span>
             </h1>
@@ -20,9 +20,9 @@ export function HeroScrollDemo() {
           <img
             src="https://ui.aceternity.com/_next/image?url=%2Flinear.webp&w=3840&q=75"
             alt="hero"
-            height={720}
-            width={1400}
-            className="mx-auto rounded-2xl object-cover h-full object-left-top"
+            height={480}
+            width={800}
+            className="w-full h-full   mx-auto rounded-xl object-cover object-center"
             draggable={false}
           />
         </ContainerScroll>
