@@ -5,6 +5,7 @@ import { Dialog, DialogPanel } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ChevronRight, CheckCircle, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 import { Link } from "react-router-dom";
+import Demo from "./demo.tsx";
 
 const navigation = [
   { name: 'Product', href: '#' },
@@ -98,11 +99,12 @@ const RetroGrid = ({
 
 export default function Hero() {
   return (
-    <div className="bg-gray-950 text-gray-100 relative">
-      <RetroGrid />
+    <div className="bg-gray-950 text-gray-100 ">
+      
 
       {/* Main Hero Section */}
       <div className="relative isolate px-6 lg:px-8">
+      <Demo/>
         <div className="mx-auto max-w-2xl py-32 sm:py-52 lg:py-50 text-center">
           <h1 className="text-4xl font-semibold">Introducing</h1>
           <div className="relative group">
@@ -189,7 +191,7 @@ export default function Hero() {
 function Footer() {
   return (
     <footer className="bg-gray-950 text-gray-100 px-8 py-12 mt-12">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-9xl">
         {/* Top row: 3 columns */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Left Column */}
