@@ -6,11 +6,29 @@
     0% { transform: translateX(0); }
     100% { transform: translateX(-100%); }
   }
-  
+
   .animate-marquee {
     display: flex;
     white-space: nowrap;
     will-change: transform;
     animation: marquee 40s linear infinite;
+  }
+  :root {
+    --color-1: 0 100% 63%;
+    --color-2: 270 100% 63%;
+    --color-3: 210 100% 63%;
+    --color-4: 195 100% 63%;
+    --color-5: 90 100% 63%;
+  }
+  @keyframes aurora-gradient {
+    0% {
+      background-position: 0%;
+    }
+    50% {
+      background-position: 100%;
+    }
+    100% {
+      background-position: 0%;
+    }
   }
   

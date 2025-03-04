@@ -7,7 +7,7 @@ import { ChevronRight, CheckCircle, Facebook, Twitter, Instagram, Linkedin } fro
 import { Link } from "react-router-dom";
 import Demo from "./demo.tsx";
 import BeamsBackground from "./beams-bg.tsx";
-
+import DevToolButton from './devtool.js';
 
 
 const navigation = [
@@ -108,15 +108,17 @@ export default function Hero() {
       {/* Main Hero Section */}
       <div className="relative isolate px-6 lg:px-8">
       <BeamsBackground className="absolute inset-0 -z-10" />
+      <DevToolButton/>
       <Demo/>
-      <div className="mx-auto max-w-2xl text-center mt-[-40px] pt-0">
-      <h2 className="text-2xl  py-1 font-semibold">
+      
+      <div className="mx-auto max-w-2xl text-center mt-[-40px] pt-0 mb-16">
+      <h2 className="text-3xl  py-1 text-black font-semibold">
             Your Business, Powered by AI Innovation.
           </h2>
-          <p className="mt-1 text-base font-extralight text-gray-300 sm:text-lg">
+          <p className="mt-1 text-2xl font-extralight text-black sm:text-xl">
             Leverage insights from your data with AI, NLP, and ML. Transform information into actionable intelligence.
           </p>
-          <div className="mt-12 flex items-center justify-center gap-x-6">
+          <div className="mt-12 flex items-center justify-center gap-x-6 pb-20">
             <a
               href="#"
               className="rounded-md bg-indigo-600 px-4 py-3 text-medium font-semibold text-white shadow-sm hover:bg-white hover:text-indigo-500 transition"
@@ -125,7 +127,7 @@ export default function Hero() {
             </a>
             <a
               href="#"
-              className="text-medium hover:text-white font-semibold text-gray-400"
+              className="text-medium hover:text-white font-semibold  text-gray-400"
             >
               Learn more →
             </a>
