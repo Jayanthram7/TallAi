@@ -6,8 +6,8 @@ import account from "../Assets/Account-Login.svg"; // Ensure this path is correc
 
 const navigation = [
   { name: "Dashboard", path: "/home2", current: false }, // Updated path to point to /home
-  { name: "Invoice to Tally", path: "https://v0-bill-extractor-e9mjzu.vercel.app/", current: false },
-  { name: "Data Visualization", path: "https://v0-next-js-charts-jikzd8zeied-jhegnp.vercel.app/", current: false },
+  { name: "Invoice to Tally", path: "https://tallai-invoice.lovable.app/", current: false },
+  { name: "Data Visualization", path: "https://v0-next-js-charts-jikzd8zeied-xntvx6.vercel.app/", current: false },
   { name: "Call Records", path: "/call-records", current: false }, // Update to use path
 ];
 
