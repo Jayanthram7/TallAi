@@ -610,12 +610,17 @@ const dropdownRef = useRef(null);
     <option value="" disabled>
       Select a service
     </option>
-    <option value="Tally Prime - Silver New">Tally Prime - Silver New</option>
-    <option value="Tally Prime - Gold New">Tally Prime - Gold New</option>
-    <option value="TSS">TSS</option>
-    <option value="TDL">TDL</option>
-    <option value="AWS">AWS</option>
-    <option value="TS9">TS9</option>
+    <option value="License">License</option>
+    <option value="Company">Company</option>
+    <option value="Security">Security</option>
+    <option value="Data">Data</option>
+    <option value="Exchange">Exchange</option>
+    <option value="Share">Share</option>
+    <option value="Print">Print</option>
+    <option value="Customization">Customization</option>
+    <option value="General">General</option>
+    <option value="Accounts">Accounts</option>
+    <option value="Others">Others</option>
   </select>
 </div>
 
@@ -658,11 +663,11 @@ const dropdownRef = useRef(null);
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                     >
                       <option value=""></option>
-                      <option value="Person 1">Person 1</option>
-                      <option value="Person 2">Person 2</option>
-                      <option value="Person 3">Person 3</option>
-                      <option value="Person 4">Person 4</option>
-                      <option value="Person 5">Person 5</option>
+                      <option value="Resource 1">Resource 1</option>
+                      <option value="Resource 2">Resource 2</option>
+                      <option value="Resource 3">Resource 3</option>
+                      <option value="Resource 4">Resource 4</option>
+                      <option value="Resource 5">Resource 5</option>
                     </select>
                   </div>
                 </div>
