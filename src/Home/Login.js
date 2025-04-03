@@ -12,7 +12,7 @@ export default function SignIn() {
     e.preventDefault();
   
     try {
-      const response = await fetch('http://localhost:5000/api/login', { // Replace with your API endpoint
+      const response = await fetch('https://backend-copy-1.onrender.com/api/login', { // Replace with your API endpoint
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

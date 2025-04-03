@@ -78,7 +78,7 @@ const CallRecords = () => {
   useEffect(() => {
     if (activeTab === "view") {
       axios
-        .get("http://localhost:5000/api/call-records")
+        .get("https://backend-copy-1.onrender.com/api/call-records")
         .then((response) => {
           setCallRecords(response.data);
           setFilteredRecords(response.data);
@@ -115,7 +115,7 @@ const updateStatus = (id, newStatus) => {
     const updatedFormData = { ...formData, tokenNumber: tokenWithDate };
   
     axios
-      .post("http://localhost:5000/api/call-records", updatedFormData)
+      .post("https://backend-copy-1.onrender.com/api/call-records", updatedFormData)
       .then((response) => {
         console.log("Call record added:", response.data);
         setFormData({
@@ -290,7 +290,7 @@ const handleExport = () => {
   // Handle Change Assigned To
   const deleteRecord = (id) => {
     axios
-      .delete(`http://localhost:5000/api/call-records/${id}`)
+      .delete(`https://backend-copy-1.onrender.com/api/call-records/${id}`)
       .then((response) => {
         console.log("Call record deleted:", response.data);
         // Remove the deleted record from the filtered records and callRecords state
@@ -303,7 +303,7 @@ const handleExport = () => {
 
   const changeAssignedTo = (id, newAssignee) => {
     axios
-      .put(`http://localhost:5000/api/call-records/${id}`, { assignedTo: newAssignee })
+      .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, { assignedTo: newAssignee })
       .then((response) => {
         console.log("Assigned to updated:", response.data);
         setCallRecords((prevRecords) =>
@@ -321,7 +321,7 @@ const handleExport = () => {
   };
   const changeStatusOfCall = (id, newStatus) => {
     axios
-      .put(`http://localhost:5000/api/call-records/${id}`, { statusOfCall: newStatus })
+      .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, { statusOfCall: newStatus })
       .then((response) => {
         console.log("Status updated:", response.data);
   

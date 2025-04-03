@@ -36,7 +36,7 @@ const CallRecords = () => {
   useEffect(() => {
     if (activeTab === "view") {
       axios
-        .get("http://localhost:5000/api/call-records")
+        .get("https://backend-copy-1.onrender.com/api/call-records")
         .then((response) => {
           setCallRecords(response.data);
           setFilteredRecords(response.data);
@@ -64,7 +64,7 @@ const CallRecords = () => {
     const updatedFormData = { ...formData, tokenNumber: tokenWithDate };
 
     axios
-      .post("http://localhost:5000/api/call-records", updatedFormData)
+      .post("https://backend-copy-1.onrender.com/api/call-records", updatedFormData)
       .then((response) => {
         console.log("Call record added:", response.data);
         setLastToken(tokenWithDate); // Save the token number in the state
