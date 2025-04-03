@@ -1016,7 +1016,7 @@ const dropdownRef = useRef(null);
       <div className="divide-y divide-gray-200">
         <div className="max-h-[700px] overflow-y-auto relative">
           {filteredRecords1
-            .filter((record) => record.assignedTo === "Person 1")
+            .filter((record) => record.assignedTo === "Resource 1")
             .map((record) => (
               <div key={record._id} className="px-4 py-4 sm:px-6">
                 <div className="flex justify-between items-center">
@@ -1138,7 +1138,7 @@ const dropdownRef = useRef(null);
         </thead>
         <tbody>
           {paginatedRecords
-            .filter((record) => record.assignedTo === "Person 1")
+            .filter((record) => record.assignedTo === "Resource 1")
             .map((record, index) => (
               <tr key={record._id} className="hover:text-indigo-600 hover:font-semibold hover:border-l-indigo-600 hover:z-auto transition ease-in-out">
                 <td className="px-2 py-1 font-semibold border-t">{(currentPage - 1) * recordsPerPage + index + 1}</td>

@@ -549,6 +549,7 @@ const dropdownRef = useRef(null);
                       value={formData.company}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      required
                     />
                   </div>
                   <div className="flex-1">
@@ -576,6 +577,7 @@ const dropdownRef = useRef(null);
                     value={formData.callTime}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    required
                   />
                 </div>
                 
@@ -1150,6 +1152,20 @@ const dropdownRef = useRef(null);
                           <option value="Person 5">Person 5</option>
                         </select>
                       </div>
+                      <div className="block w-full px-4 py-2 text-left text-sm text-indigo-600">
+                        Enter Serial Number 
+                        <select
+                          onChange={(e) => changeAssignedTo(record._id, e.target.value)}
+                          className="w-full px-3 py-1 bg-gray-100 rounded-md"
+                        >
+                          <option value=""></option>
+                          <option value="Person 1">Person 1</option>
+                          <option value="Person 2">Person 2</option>
+                          <option value="Person 3">Person 3</option>
+                          <option value="Person 4">Person 4</option>
+                          <option value="Person 5">Person 5</option>
+                        </select>
+                      </div>
                       <button
                         onClick={() => changeStatusOfCall(record._id, "Complete")}
                         className="block w-full px-4 py-2 text-left text-sm text-green-500 bg-white rounded-md hover:bg-gray-100"
@@ -1255,7 +1271,7 @@ const dropdownRef = useRef(null);
           .map((record, index) => (
             <tr
               key={record._id}
-              className="hover:text-indigo-600 overflow-y-auto max-h-[600px] hover:font-semibold hover:border-l-indigo-600 hover:z-auto transition ease-in-out"
+              className="hover:text-indigo-600 overflow-y-auto max-h-[1000px] hover:font-semibold hover:border-l-indigo-600 hover:z-auto transition ease-in-out"
             >
               <td className="px-2 py-1 font-semibold border-t">
                     {(currentPage - 1) * recordsPerPage + index + 1}
@@ -1341,6 +1357,20 @@ const dropdownRef = useRef(null);
 
                     <div className="block w-full px-4 py-2 text-left text-sm text-indigo-600">
                       Change Assigned To
+                      <select
+                        onChange={(e) => changeAssignedTo(record._id, e.target.value)}
+                        className="w-full px-3 py-1 bg-gray-100 rounded-md"
+                      >
+                        <option value=""></option>
+                        <option value="Person 1">Person 1</option>
+                        <option value="Person 2">Person 2</option>
+                        <option value="Person 3">Person 3</option>
+                        <option value="Person 4">Person 4</option>
+                        <option value="Person 5">Person 5</option>
+                      </select>
+                    </div>
+                    <div className="block w-full px-4 py-2 text-left text-sm text-indigo-600">
+                      Update Serial Number
                       <select
                         onChange={(e) => changeAssignedTo(record._id, e.target.value)}
                         className="w-full px-3 py-1 bg-gray-100 rounded-md"
