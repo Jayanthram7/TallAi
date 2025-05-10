@@ -10,7 +10,7 @@ const HomePage = () => {
     <div className="">
         <NavbarAdmin/>
         <Hero/>
-        <Features/>
+       
     
     </div>
   )

@@ -88,6 +88,30 @@ const CallRecords = () => {
   }, [activeTab]);
   const [editingStatus, setEditingStatus] = useState(null);
 const [statusInput, setStatusInput] = useState("");
+const [editingSerial, setEditingSerial] = useState(null);
+const [serialInput, setSerialInput] = useState("");
+const [serialWarning, setSerialWarning] = useState(false);
+const [phoneWarning, setPhoneWarning] = useState(false);
+
+
+
+
+useEffect(() => {
+  const now = new Date();
+  const formatted = now.toISOString().slice(0, 16); // Format as yyyy-MM-ddTHH:mm
+  setFormData(prev => ({ ...prev, callTime: formatted }));
+}, []);
+useEffect(() => {
+  const generateRandomToken = () => {
+    return Math.floor(10000 + Math.random() * 90000).toString(); // 5-digit number
+  };
+
+  setFormData((prev) => ({
+    ...prev,
+    tokenNumber: generateRandomToken(),
+  }));
+}, []);
+
 
 // Function to handle status update
 const updateStatus = (id, newStatus) => {
@@ -96,13 +120,24 @@ const updateStatus = (id, newStatus) => {
   setEditingStatus(null);
   setStatusInput("");
 };
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+const handleInputChange = (e) => {
+  const { name, value } = e.target;
+
+  if (name === "serialNumber") {
+    setSerialWarning(value.length > 9);
+  }
+
+  if (name === "phoneNumber") {
+    setPhoneWarning(value.length > 10);
+  }
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+};
+
+
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -341,6 +376,28 @@ const handleExport = () => {
       })
       .catch((error) => console.error("Error updating status:", error));
   };
+  const changeSerialNumber = (id, newSerial) => {
+    axios
+      .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, { serialNumber: newSerial })
+      .then((response) => {
+        console.log("Serial number updated:", response.data);
+  
+        setCallRecords((prevRecords) =>
+          prevRecords.map((record) =>
+            record._id === id ? { ...record, serialNumber: newSerial } : record
+          )
+        );
+        setFilteredRecords((prevFiltered) =>
+          prevFiltered.map((record) =>
+            record._id === id ? { ...record, serialNumber: newSerial } : record
+          )
+        );
+  
+        setEditingSerial(null); // Close the input field
+      })
+      .catch((error) => console.error("Error updating serial number:", error));
+  };
+  
   const [activeView, setActiveView] = useState("table"); // Track the current view (either "record" or "table")
 
 const handleViewToggle = (view) => {
@@ -504,7 +561,20 @@ const dropdownRef = useRef(null);
           <div className="col-span-9">
             {activeTab === "add" && (
               <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 border border-gray-300">
-              <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Add Call Record</h2>
+              <div className="flex justify-between items-center mb-6">
+  <h2 className="text-2xl font-bold text-gray-800">Add Call Record</h2>
+  <div className="flex items-center space-x-2 text-gray-700">
+    
+    <span className="text-md font-medium">
+      {new Date().toLocaleDateString('en-IN', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })}
+    </span>
+  </div>
+</div>
               <form onSubmit={handleFormSubmit} className="space-y-3">
                 {/* Phone Number and Caller Name */}
                 <div className="flex space-x-3">
@@ -522,18 +592,22 @@ const dropdownRef = useRef(null);
                     />
                   </div>
                   <div className="flex-1">
-                    <label htmlFor="phoneNumber" className="block text-gray-700 font-medium">Phone Number</label>
-                    <input
-                      type="text"
-                      name="phoneNumber"
-                      id="phoneNumber"
-                      placeholder="Phone Number"
-                      value={formData.phoneNumber}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      required
-                    />
-                  </div>
+  <label htmlFor="phoneNumber" className="block text-gray-700 font-medium">Phone Number</label>
+  <input
+    type="text"
+    name="phoneNumber"
+    id="phoneNumber"
+    placeholder="Phone Number"
+    value={formData.phoneNumber}
+    onChange={handleInputChange}
+    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+    required
+  />
+  {phoneWarning && (
+    <p className="text-sm text-red-600 mt-1">Phone number cannot exceed 10 digits.</p>
+  )}
+</div>
+
                   
                 </div>
             
@@ -553,33 +627,37 @@ const dropdownRef = useRef(null);
                     />
                   </div>
                   <div className="flex-1">
-                    <label htmlFor="serialNumber" className="block text-gray-700 font-medium">Serial Number</label>
-                    <input
-                      type="text"
-                      name="serialNumber"
-                      id="serialNumber"
-                      placeholder="Serial Number"
-                      value={formData.serialNumber}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
-                  </div>
+  <label htmlFor="serialNumber" className="block text-gray-700 font-medium">Serial Number</label>
+  <input
+    type="text"
+    name="serialNumber"
+    id="serialNumber"
+    placeholder="Serial Number"
+    value={formData.serialNumber}
+    onChange={handleInputChange}
+    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+  />
+  {serialWarning && (
+    <p className="text-sm text-red-600 mt-1">Serial number cannot exceed 9 digits.</p>
+  )}
+</div>
+
                 </div>
             
                 {/* Call Time */}
                 <div className="flex space-x-3">
                 <div className="flex-4">
-                  <label htmlFor="callTime" className="block text-gray-700 font-medium">Date</label>
-                  <input
-                    type="datetime-local"
-                    name="callTime"
-                    id="callTime"
-                    value={formData.callTime}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
+  <label htmlFor="callTime" className="block text-gray-700 font-medium mb-1">Date</label>
+  <div className="flex items-center px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-800">
+    {new Date(formData.callTime).toLocaleDateString('en-IN', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    })}
+  </div>
+</div>
+
                 
   <div className="flex-1">
                   <label htmlFor="email" className="block text-gray-700 font-medium">Email</label>
@@ -642,37 +720,34 @@ const dropdownRef = useRef(null);
             
                 {/* Token Number and Assigned Task */}
                 <div className="flex space-x-3">
-                  <div className="flex-1">
-                    <label htmlFor="tokenNumber" className="block text-gray-700 font-medium">Token</label>
-                    <input
-                      type="text"
-                      name="tokenNumber"
-                      id="tokenNumber"
-                      placeholder="Token Number"
-                      value={formData.tokenNumber}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
-                  </div>
-            
-                  <div className="flex-1">
-                    <label htmlFor="assignedTo" className="block text-gray-700 font-medium">Assign Task</label>
-                    <select
-                      name="assignedTo"
-                      id="assignedTo"
-                      value={formData.assignedTo}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    >
-                      <option value=""></option>
-                      <option value="Resource 1">Resource 1</option>
-                      <option value="Resource 2">Resource 2</option>
-                      <option value="Resource 3">Resource 3</option>
-                      <option value="Resource 4">Resource 4</option>
-                      <option value="Resource 5">Resource 5</option>
-                    </select>
-                  </div>
-                </div>
+  {/* Token Number (Auto-generated, Read-only) */}
+  <div className="flex-1">
+    <label htmlFor="tokenNumber" className="block text-gray-700 font-medium">Token</label>
+    <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-800">
+      {formData.tokenNumber}
+    </div>
+  </div>
+
+  {/* Assigned To Dropdown */}
+  <div className="flex-1">
+    <label htmlFor="assignedTo" className="block text-gray-700 font-medium">Assign Task</label>
+    <select
+      name="assignedTo"
+      id="assignedTo"
+      value={formData.assignedTo}
+      onChange={handleInputChange}
+      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+    >
+      <option value=""></option>
+      <option value="Resource 1">Resource 1</option>
+      <option value="Resource 2">Resource 2</option>
+      <option value="Resource 3">Resource 3</option>
+      <option value="Resource 4">Resource 4</option>
+      <option value="Resource 5">Resource 5</option>
+    </select>
+  </div>
+</div>
+
             
                 {/* Submit Button */}
                 <button
@@ -1369,20 +1444,31 @@ const dropdownRef = useRef(null);
                         <option value="Person 5">Person 5</option>
                       </select>
                     </div>
-                    <div className="block w-full px-4 py-2 text-left text-sm text-indigo-600">
-                      Update Serial Number
-                      <select
-                        onChange={(e) => changeAssignedTo(record._id, e.target.value)}
-                        className="w-full px-3 py-1 bg-gray-100 rounded-md"
-                      >
-                        <option value=""></option>
-                        <option value="Person 1">Person 1</option>
-                        <option value="Person 2">Person 2</option>
-                        <option value="Person 3">Person 3</option>
-                        <option value="Person 4">Person 4</option>
-                        <option value="Person 5">Person 5</option>
-                      </select>
-                    </div>
+                    <button
+  onClick={() => setEditingSerial(record._id)}
+  className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
+>
+  Update serial number
+</button>
+{editingSerial === record._id && (
+  <div className="block w-full px-4 py-2 text-left text-sm">
+    <input
+      type="text"
+      placeholder="Enter new serial number"
+      className="w-full px-3 py-1 border rounded-md"
+      value={serialInput}
+      onChange={(e) => setSerialInput(e.target.value)}
+    />
+    <button
+      onClick={() => changeSerialNumber(record._id, serialInput)}
+      className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+    >
+      Save
+    </button>
+  </div>
+)}
+
+                   
                     <button
                       onClick={() => changeStatusOfCall(record._id, "To Bill")}
                       className="block w-full px-4 py-2 text-left text-sm text-orange-500 bg-white rounded-md hover:bg-gray-100"

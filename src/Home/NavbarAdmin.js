@@ -3,6 +3,7 @@ import { Bars3Icon, XMarkIcon, BellIcon } from "@heroicons/react/24/outline";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { Link } from "react-router-dom"; // Import Link from React Router
 import account from "../Assets/Account-Login.svg"; // Ensure this path is correct
+import logo from "../Assets/logo.jpg"; // Ensure this path is correct
 
 const navigation = [
   { name: "Dashboard", path: "/home2", current: false }, // Updated path to point to /home
@@ -17,7 +18,7 @@ function classNames(...classes) {
 
 export default function Navbar() {
   return (
-    <Disclosure as="nav" className="bg-gray-900 fixed top-0 left-0 w-full z-50 h-16">
+    <Disclosure as="nav" className="bg-gray-800 fixed top-0 left-0 w-full z-50 h-16">
       <div className="mx-auto  px-2 sm:px-6 lg:px-8 h-full">
         <div className="relative flex h-full items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -33,12 +34,15 @@ export default function Navbar() {
             <div className="flex shrink-0 items-center">
               <img
                 alt="Your Company"
-                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500"
-                className="h-8 w-auto"
+                src={logo}
+                className="h-10 w-auto rounded-lg text-gray-400 hover:text-white"
               />
             </div>
-            <div className="hidden sm:ml-6 sm:block">
-              <div className="flex space-x-4">
+            <div className="flex text-white text-xl items-center font-bold ml-4">
+              Advent Systems
+            </div>
+            <div className="hidden sm:ml-6 sm:block items-center">
+              <div className="flex space-x-4 itmes-center">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
@@ -62,8 +66,8 @@ export default function Navbar() {
               className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
             >
               <span className="absolute -inset-1.5" />
-              <span className="sr-only">View notifications</span>
-              <BellIcon aria-hidden="true" className="size-6" />
+              
+             
             </button>
 
             {/* Profile dropdown */}
@@ -83,22 +87,7 @@ export default function Navbar() {
                 transition
                 className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 transition focus:outline-none"
               >
-                <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Your Profile
-                  </a>
-                </MenuItem>
-                <MenuItem>
-                  <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    Settings
-                  </a>
-                </MenuItem>
+       
                 <MenuItem>
   <Link
     to="/"
