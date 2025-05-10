@@ -829,8 +829,8 @@ const dropdownRef = useRef(null);
     <option value="Accounts">Accounts</option>
     <option value="Others">Others</option>
   </select>
-  {errors.callerName && (
-    <p className="text-sm text-red-600 mt-1">{errors.callerName}</p>
+  {errors.typeOfService && (
+    <p className="text-sm text-red-600 mt-1">{errors.typeOfService}</p>
   )}
 </div>
 
@@ -1380,7 +1380,7 @@ const dropdownRef = useRef(null);
   onClick={() => setEditingSerial(record._id)}
   className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
 >
-  Update serial number
+  Update Serial number
 </button>
 {editingSerial === record._id && (
   <div className="block w-full px-4 py-2 text-left text-sm">
@@ -1645,7 +1645,7 @@ const dropdownRef = useRef(null);
         onClick={() => setEditingSerial(record._id)}
         className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
       >
-        Update serial number
+        Update Serial number
       </button>
 
       {editingSerial === record._id && (
