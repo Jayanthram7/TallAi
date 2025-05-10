@@ -3,7 +3,7 @@ import { Bars3Icon, XMarkIcon, BellIcon } from "@heroicons/react/24/outline";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { Link } from "react-router-dom"; // Import Link from React Router
 import account from "../Assets/Account-Login.svg"; // Ensure this path is correct
-import TallAi from "../Assets/TallAi.png"; // Ensure this path is correct
+import TallAi from "../Assets/logo.jpg"; // Ensure this path is correct
 import { ArrowRight } from "lucide-react";
 import { UserPlus } from "lucide-react";
 
@@ -36,12 +36,12 @@ export default function Navbar() {
               <img
                 alt="TallAi Logo"
                 src={TallAi}
-                className="h-8 mt-1 w-auto"
+                className="h-12 mt-1 w-auto"
               />
             </div>
-            <div className="text-3xl font-semibold ml-2">
-  <span className="text-gray-800">Tall</span>
-  <span className="text-indigo-500">Ai</span>
+            <div className="flex text-2xl font-semibold ml-2 items-center justify-center">
+  <span className="text-gray-800">Advent</span>
+  <span className="text-indigo-500 ml-2 ">Systems </span>
 </div>
 
           </div>

@@ -3,7 +3,7 @@ import { ContainerScroll } from "./contianer-scroll-animation.tsx"; // Adjust pa
 import BeamsBackground from "./beams-bg.tsx";
 import { AuroraText}  from "./arora-text.tsx";
 import DevToolButton from "./devtool.js";
-
+import logo from "../Assets/logo.jpg";
 export function HeroScrollDemo() {
     
     
@@ -33,8 +33,8 @@ export function HeroScrollDemo() {
         >
           <img
             src=""
-            alt="hero"
-            height={480}
+            alt="advent"
+            height={800}
             width={800}
             className="w-full h-full   mx-auto rounded-xl object-cover object-center"
             draggable={false}
