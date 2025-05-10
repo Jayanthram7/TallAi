@@ -707,9 +707,10 @@ const dropdownRef = useRef(null);
     className="w-full px-3 py-2 border border-gray-300 rounded-md"
     required
   />
-  {errors.callerName && (
-    <p className="text-sm text-red-600 mt-1">{errors.callerName}</p>
-  )}
+  {errors.phoneNumber && (
+  <p className="text-sm text-red-600 mt-1">{errors.phoneNumber}</p>
+)}
+
   {phoneWarning && (
     <p className="text-sm text-red-600 mt-1">Phone number cannot exceed 10 digits.</p>
   )}
@@ -733,8 +734,8 @@ const dropdownRef = useRef(null);
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       required
                     />
-                    {errors.callerName && (
-    <p className="text-sm text-red-600 mt-1">{errors.callerName}</p>
+                    {errors.company && (
+    <p className="text-sm text-red-600 mt-1">{errors.company}</p>
   )}
                   </div>
                   <div className="flex-1">
@@ -1559,142 +1560,167 @@ const dropdownRef = useRef(null);
               >
                 {record.statusOfCall}
               </td>
-              <td className="relative px-3 py-1">
-                <button
-                  onClick={() =>
-                    setShowOptionsForRecord(
-                      showOptionsForRecord === record._id ? null : record._id
-                    )
-                  }
-                  className="flex items-center gap-2 px-3 py-1 text-indigo-600 border-none shadow-none rounded-md hover:bg-gray-100"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M16.862 3.487a2.25 2.25 0 113.182 3.182L7.5 19.213l-4.125.458.458-4.125L16.862 3.487z"
-                    />
-                  </svg>
-                </button>
-
-                {/* Options Menu */}
-                {showOptionsForRecord === record._id && (
-                  <div
-                    ref={dropdownRef}
-                    className="absolute right-0 top-6 w-48 bg-white rounded-md shadow-lg z-50"
-                    style={{ transform: "translateY(-50%)" }}
-                  >
-                    <button
-                      onClick={() => setEditingStatus(record._id)}
-                      className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
-                    >
-                      Change status
-                    </button>
-                    {editingStatus === record._id && (
-                      <div className="block w-full px-4 py-2 text-left text-sm">
-                        <input
-                          type="text"
-                          placeholder="Enter new status"
-                          className="w-full px-3 py-1 border rounded-md"
-                          value={statusInput}
-                          onChange={(e) => setStatusInput(e.target.value)}
-                        />
-                        <button
-                          onClick={() => changeStatusOfCall(record._id, statusInput)}
-                          className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
-                        >
-                          Save
-                        </button>
-                      </div>
-                    )}
-
-                    <div className="block w-full px-4 py-2 text-left text-sm text-indigo-600">
-                      Change Assigned To
-                      <select
-                        onChange={(e) => changeAssignedTo(record._id, e.target.value)}
-                        className="w-full px-3 py-1 bg-gray-100 rounded-md"
-                      >
-                        <option value=""></option>
-                        <option value="Resource 1">Resource 1</option>
-                        <option value="Resource 2">Resource 2</option>
-                        <option value="Resource 3">Resource 3</option>
-                        <option value="Resource 4">Resource 4</option>
-                        <option value="Resource 5">Resource 5</option>
-                      </select>
-                    </div>
-                    <button
-  onClick={() => setEditingSerial(record._id)}
-  className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
->
-  Update serial number
-</button>
-{editingSerial === record._id && (
-  <div className="block w-full px-4 py-2 text-left text-sm">
-    <input
-      type="text"
-      placeholder="Enter new serial number"
-      className="w-full px-3 py-1 border rounded-md"
-      value={serialInput}
-      onChange={(e) => setSerialInput(e.target.value)}
-    />
-    <button
-      onClick={() => changeSerialNumber(record._id, serialInput)}
-      className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
-    >
-      Save
-    </button>
-  </div>
-)}
-
-                   
-                    <button
-                      onClick={() => changeStatusOfCall(record._id, "To Bill")}
-                      className="block w-full px-4 py-2 text-left text-sm text-orange-500 bg-white rounded-md hover:bg-gray-100"
-                    >
-                      To be billed
-                    </button>
-                    <button
-  onClick={() => {
-    // Validation to check if any field is empty
-    const isAnyFieldEmpty = !record.company ||
-      !record.callerName ||
-      !record.phoneNumber ||
-      !record.serialNumber ||
-      !record.typeOfService ||
-      !record.assignedTo ||
-      !record.callTime ||
-      !record.statusOfCall;
-
-    if (isAnyFieldEmpty) {
-      alert("Please ensure all fields are filled before marking the call as completed.");
-      return; // Stop further execution
+              <td className="px-3 py-1 z-40 align-top">
+ {/* Added z-40 here */}
+  <button
+    onClick={() =>
+      setShowOptionsForRecord(
+        showOptionsForRecord === record._id ? null : record._id
+      )
     }
+    className="flex items-center gap-2 px-3 py-1 text-indigo-600 border-none shadow-none rounded-md hover:bg-gray-100"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="w-5 h-5"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16.862 3.487a2.25 2.25 0 113.182 3.182L7.5 19.213l-4.125.458.458-4.125L16.862 3.487z"
+      />
+    </svg>
+  </button>
 
-    // Proceed to change status if validation passes
-    changeStatusOfCall(record._id, "Complete");
+  {/* Options Menu */}
+  {showOptionsForRecord === record._id && (
+   <div
+   ref={dropdownRef}
+   className="relative mt-1 w-60 bg-white rounded-md shadow-xl z-50"
+ >
+ 
+      <button
+        onClick={() => setEditingStatus(record._id)}
+        className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
+      >
+        Change status
+      </button>
+
+      {editingStatus === record._id && (
+        <div className="block w-full px-4 py-2 text-left text-sm">
+          <input
+            type="text"
+            placeholder="Enter new status"
+            className="w-full px-3 py-1 border rounded-md"
+            value={statusInput}
+            onChange={(e) => setStatusInput(e.target.value)}
+          />
+          <button
+  onClick={() => {
+    changeStatusOfCall(record._id, statusInput);
+    setShowOptionsForRecord(null); // Close dropdown
   }}
-  className="block w-full px-4 py-2 text-left text-sm text-green-500 bg-white rounded-md hover:bg-gray-100"
+  className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
 >
-  Mark Call as Completed
+  Save
 </button>
 
+        </div>
+      )}
 
-                    <button
-                      onClick={() => deleteRecord(record._id)}
-                      className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </td>
+      <div className="block w-full px-4 py-2 text-left text-sm text-indigo-600">
+        Change Assigned To
+        <select
+  onChange={(e) => {
+    changeAssignedTo(record._id, e.target.value);
+    setShowOptionsForRecord(null); // Close dropdown
+  }}
+  className="w-full px-3 py-1 bg-gray-100 rounded-md"
+>
+
+          <option value=""></option>
+          <option value="Resource 1">Resource 1</option>
+          <option value="Resource 2">Resource 2</option>
+          <option value="Resource 3">Resource 3</option>
+          <option value="Resource 4">Resource 4</option>
+          <option value="Resource 5">Resource 5</option>
+        </select>
+      </div>
+
+      <button
+        onClick={() => setEditingSerial(record._id)}
+        className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
+      >
+        Update serial number
+      </button>
+
+      {editingSerial === record._id && (
+        <div className="block w-full px-4 py-2 text-left text-sm">
+          <input
+            type="text"
+            placeholder="Enter new serial number"
+            className="w-full px-3 py-1 border rounded-md"
+            value={serialInput}
+            onChange={(e) => setSerialInput(e.target.value)}
+          />
+          <button
+            onClick={() => {
+              changeSerialNumber(record._id, serialInput);
+              setShowOptionsForRecord(null);
+               // Optional: hide the input again
+            }}
+            
+            className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+          >
+            Save
+          </button>
+        </div>
+      )}
+
+      <button
+        onClick={() => {
+          changeStatusOfCall(record._id, "To Bill");
+          setShowOptionsForRecord(null); // Close dropdown
+        }}
+        className="block w-full px-4 py-2 text-left text-sm text-orange-500 bg-white rounded-md hover:bg-gray-100"
+      >
+        To be billed
+      </button>
+
+      <button
+        onClick={() => {
+          const isAnyFieldEmpty =
+            !record.company ||
+            !record.callerName ||
+            !record.phoneNumber ||
+            !record.serialNumber ||
+            !record.typeOfService ||
+            !record.assignedTo ||
+            !record.callTime ||
+            !record.statusOfCall;
+        
+          if (isAnyFieldEmpty) {
+            alert("Please ensure all fields are filled before marking the call as completed.");
+            return;
+          }
+        
+          changeStatusOfCall(record._id, "Complete");
+          setShowOptionsForRecord(null); // Close dropdown
+        }}
+        
+        className="block w-full px-4 py-2 text-left text-sm text-green-500 bg-white rounded-md hover:bg-gray-100"
+      >
+        Mark Call as Completed
+      </button>
+
+      <button
+        onClick={() => {
+          deleteRecord(record._id);
+          setShowOptionsForRecord(null); // Close dropdown
+        }}
+        
+        className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+      >
+        Delete
+      </button>
+    </div>
+  )}
+</td>
+
             </tr>
           ))}
       </tbody>
