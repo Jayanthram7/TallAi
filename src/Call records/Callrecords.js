@@ -4,20 +4,36 @@ import axios from "axios";
 import { useEfect, useRef } from "react";
 import excel from "../Assets/excel.png";
 import * as XLSX from "xlsx";
+import { PlusCircle, Eye } from "lucide-react";
 
 const CallRecords = () => {
+  const [errors, setErrors] = useState({});
+  const [editingEmail, setEditingEmail] = useState(null);
+  const [emailInput, setEmailInput] = useState('');
+  
+
+
+  const callerNameRef = useRef(null);
+  const generateDefaultDate = () => {
+    const now = new Date();
+    return now.toISOString().slice(0, 16); // Format: "YYYY-MM-DDTHH:mm"
+  };
+  
+  const generateRandomToken = () => {
+    return Math.floor(10000 + Math.random() * 90000).toString(); // 5-digit number
+  };
   const [formData, setFormData] = useState({
     phoneNumber: "",
     callerName: "",
     company: "",
     serialNumber: "",
-    callTime: "",
+    callTime: generateDefaultDate(),   // ✅ Set a valid default datetime
     reason: "",
     typeOfService: "",
     assignedTo: "",
-    tokenNumber: "",
-    email: "", // New email field
-    statusOfCall: "Incomplete", // Default value
+    tokenNumber: generateRandomToken(), // ✅ Generate token on load
+    email: "",
+    statusOfCall: "Incomplete",
   });
 
   const [callRecords, setCallRecords] = useState([]);
@@ -139,38 +155,51 @@ const handleInputChange = (e) => {
 
 
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-  
-    // Prepend today's date to the token number
-    const tokenPrefix = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-    const tokenWithDate = `${tokenPrefix}-${formData.tokenNumber}`;
-  
-    // Update the formData to include the token number with the date prefix
-    const updatedFormData = { ...formData, tokenNumber: tokenWithDate };
-  
-    axios
-      .post("https://backend-copy-1.onrender.com/api/call-records", updatedFormData)
-      .then((response) => {
-        console.log("Call record added:", response.data);
-        setFormData({
-          phoneNumber: "",
-          callerName: "",
-          company: "",
-          serialNumber: "",
-          callTime: "",
-          reason: "",
-          typeOfService: "",
-          assignedTo: "",
-          tokenNumber: "",
-          email: "", // New email field
-          statusOfCall: "Incomplete",
-        });
-        setActiveTab("view"); // Switch to 'view' tab after adding the record
-      })
-      .catch((error) => console.error("Error adding call record:", error));
-  };
-  
+
+
+const handleFormSubmit = (e, mode = "add") => {
+  e.preventDefault();
+
+  const tokenPrefix = new Date().toISOString().split("T")[0];
+  const tokenWithDate = `${tokenPrefix}-${formData.tokenNumber}`;
+
+  const updatedFormData = { ...formData, tokenNumber: tokenWithDate };
+
+  axios
+    .post("https://backend-copy-1.onrender.com/api/call-records", updatedFormData)
+    .then((response) => {
+      console.log("Call record added:", response.data);
+
+      // Reset form
+      setFormData({
+        phoneNumber: "",
+        callerName: "",
+        company: "",
+        serialNumber: "",
+        callTime: generateDefaultDate(),
+        reason: "",
+        typeOfService: "",
+        assignedTo: "",
+        tokenNumber: generateRandomToken(),
+        email: "",
+        statusOfCall: "Incomplete",
+      });
+
+      // Switch to view tab if needed
+      if (mode === "view") {
+        setActiveTab("view");
+      }
+
+      // Focus back to caller name input
+      if (callerNameRef.current) {
+        callerNameRef.current.focus();
+      }
+    })
+    .catch((error) => console.error("Error adding call record:", error));
+};
+
+
+
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -232,6 +261,50 @@ const handleInputChange = (e) => {
     setFilteredRecords(filtered);
     setFilterMenuVisible(false);
   };
+  const requiredFields = ["callerName", "phoneNumber", "company", "typeOfService"];
+
+  const handleKeyNavigation = (e) => {
+    const form = e.target.form;
+    const elements = Array.from(
+      form.querySelectorAll("input, select, textarea, button")
+    ).filter(el => !el.disabled && el.type !== "hidden");
+  
+    const currentIndex = elements.indexOf(e.target);
+    const currentName = e.target.name;
+  
+    if (e.key === "Enter") {
+      const requiredFields = ["callerName", "phoneNumber", "company", "typeOfService"];
+      const isRequired = requiredFields.includes(currentName);
+      const valuePresent = e.target.value && e.target.value.trim() !== "";
+  
+      if (e.target.tagName === "BUTTON") return;
+  
+      e.preventDefault();
+  
+      if (!isRequired || valuePresent) {
+        // Clear error if any
+        setErrors(prev => ({ ...prev, [currentName]: "" }));
+  
+        const nextIndex = currentIndex + 1;
+        if (nextIndex < elements.length) {
+          elements[nextIndex].focus();
+        }
+      } else {
+        // Set error if required but empty
+        setErrors(prev => ({ ...prev, [currentName]: "This field is required" }));
+      }
+    }
+  
+    if (e.key === "Escape") {
+      e.preventDefault();
+      const prevIndex = currentIndex - 1;
+      if (prevIndex >= 0) {
+        elements[prevIndex].focus();
+      }
+    }
+  };
+  
+  
   const isFilterApplied = Object.keys(filters).length > 0;
   const jisFilterApplied = Boolean(filters.length); // Assuming activeFilters is an array of applied filters
   const [currentPage, setCurrentPage] = useState(1);
@@ -397,6 +470,28 @@ const handleExport = () => {
       })
       .catch((error) => console.error("Error updating serial number:", error));
   };
+  const changeEmail = (id, newEmail) => {
+    axios
+      .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, { email: newEmail })
+      .then((response) => {
+        console.log("Email updated:", response.data);
+  
+        setCallRecords((prevRecords) =>
+          prevRecords.map((record) =>
+            record._id === id ? { ...record, email: newEmail } : record
+          )
+        );
+        setFilteredRecords((prevFiltered) =>
+          prevFiltered.map((record) =>
+            record._id === id ? { ...record, email: newEmail } : record
+          )
+        );
+  
+        setEditingEmail(null); // Close the email edit input field
+      })
+      .catch((error) => console.error("Error updating email:", error));
+  };
+  
   
   const [activeView, setActiveView] = useState("table"); // Track the current view (either "record" or "table")
 
@@ -579,18 +674,26 @@ const dropdownRef = useRef(null);
                 {/* Phone Number and Caller Name */}
                 <div className="flex space-x-3">
                 <div className="flex-1">
-                    <label htmlFor="callerName" className="block text-gray-700 font-medium">Caller Name</label>
-                    <input
-                      type="text"
-                      name="callerName"
-                      id="callerName"
-                      placeholder="Caller Name"
-                      value={formData.callerName}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      required
-                    />
-                  </div>
+  <label htmlFor="callerName" className="block text-gray-700 font-medium">
+    Caller Name
+  </label>
+  <input
+    ref={callerNameRef}
+    type="text"
+    name="callerName"
+    id="callerName"
+    placeholder="Caller Name"
+    value={formData.callerName}
+    onKeyDown={handleKeyNavigation}
+    onChange={handleInputChange}
+    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+    required
+  />
+  {errors.callerName && (
+    <p className="text-sm text-red-600 mt-1">{errors.callerName}</p>
+  )}
+</div>
+
                   <div className="flex-1">
   <label htmlFor="phoneNumber" className="block text-gray-700 font-medium">Phone Number</label>
   <input
@@ -599,10 +702,14 @@ const dropdownRef = useRef(null);
     id="phoneNumber"
     placeholder="Phone Number"
     value={formData.phoneNumber}
+    onKeyDown={handleKeyNavigation}
     onChange={handleInputChange}
     className="w-full px-3 py-2 border border-gray-300 rounded-md"
     required
   />
+  {errors.callerName && (
+    <p className="text-sm text-red-600 mt-1">{errors.callerName}</p>
+  )}
   {phoneWarning && (
     <p className="text-sm text-red-600 mt-1">Phone number cannot exceed 10 digits.</p>
   )}
@@ -621,10 +728,14 @@ const dropdownRef = useRef(null);
                       id="company"
                       placeholder="Company"
                       value={formData.company}
+                      onKeyDown={handleKeyNavigation}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       required
                     />
+                    {errors.callerName && (
+    <p className="text-sm text-red-600 mt-1">{errors.callerName}</p>
+  )}
                   </div>
                   <div className="flex-1">
   <label htmlFor="serialNumber" className="block text-gray-700 font-medium">Serial Number</label>
@@ -634,9 +745,11 @@ const dropdownRef = useRef(null);
     id="serialNumber"
     placeholder="Serial Number"
     value={formData.serialNumber}
+    onKeyDown={handleKeyNavigation}
     onChange={handleInputChange}
     className="w-full px-3 py-2 border border-gray-300 rounded-md"
   />
+  
   {serialWarning && (
     <p className="text-sm text-red-600 mt-1">Serial number cannot exceed 9 digits.</p>
   )}
@@ -667,6 +780,7 @@ const dropdownRef = useRef(null);
                     id="email"
                      placeholder="Email"
                     value={formData.email}
+                    onKeyDown={handleKeyNavigation}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
@@ -684,6 +798,18 @@ const dropdownRef = useRef(null);
     id="typeOfService"
     value={formData.typeOfService}
     onChange={handleInputChange}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" && e.target.value) {
+        e.preventDefault(); // Prevent form submit
+        const formElements = Array.from(
+          e.target.form.querySelectorAll("input, select, textarea")
+        ).filter((el) => !el.disabled && el.type !== "hidden");
+        const index = formElements.indexOf(e.target);
+        if (index > -1 && index < formElements.length - 1) {
+          formElements[index + 1].focus();
+        }
+      }
+    }}
     className="w-full px-3 py-2 border border-gray-300 rounded-md"
     required
   >
@@ -702,7 +828,11 @@ const dropdownRef = useRef(null);
     <option value="Accounts">Accounts</option>
     <option value="Others">Others</option>
   </select>
+  {errors.callerName && (
+    <p className="text-sm text-red-600 mt-1">{errors.callerName}</p>
+  )}
 </div>
+
 
             
                 {/* Reason */}
@@ -713,6 +843,7 @@ const dropdownRef = useRef(null);
                     id="reason"
                     placeholder="Reason"
                     value={formData.reason}
+                    onKeyDown={handleKeyNavigation}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   ></textarea>
@@ -735,6 +866,7 @@ const dropdownRef = useRef(null);
       name="assignedTo"
       id="assignedTo"
       value={formData.assignedTo}
+      onKeyDown={handleKeyNavigation}
       onChange={handleInputChange}
       className="w-full px-3 py-2 border border-gray-300 rounded-md"
     >
@@ -750,12 +882,28 @@ const dropdownRef = useRef(null);
 
             
                 {/* Submit Button */}
-                <button
-                  type="submit"
-                  className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500"
-                >
-                  Add Entry
-                </button>
+                <div className="flex space-x-3">
+  <button
+    type="submit"
+    onClick={(e) => handleFormSubmit(e, "add")}
+    onKeyDown={handleKeyNavigation}
+    className="flex items-center justify-center space-x-2 flex-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500"
+  >
+    <PlusCircle size={18} />
+    <span>Add Entry</span>
+  </button>
+
+  <button
+    type="submit"
+    onClick={(e) => handleFormSubmit(e, "view")}
+    onKeyDown={handleKeyNavigation}
+    className="flex items-center justify-center space-x-2 flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500"
+  >
+    <Eye size={18} />
+    <span>Add & View</span>
+  </button>
+</div>
+
               </form>
             </div>
             
@@ -1220,33 +1368,70 @@ const dropdownRef = useRef(null);
                           className="w-full px-3 py-1 bg-gray-100 rounded-md"
                         >
                           <option value=""></option>
-                          <option value="Person 1">Person 1</option>
-                          <option value="Person 2">Person 2</option>
-                          <option value="Person 3">Person 3</option>
-                          <option value="Person 4">Person 4</option>
-                          <option value="Person 5">Person 5</option>
+                          <option value="Resource 1">Resource 1</option>
+                          <option value="Resource 2">Resource 2</option>
+                          <option value="Resource 3">Resource 3</option>
+                          <option value="Resource 4">Resource 4</option>
+                          <option value="Resource 5">Resource 5</option>
                         </select>
                       </div>
-                      <div className="block w-full px-4 py-2 text-left text-sm text-indigo-600">
-                        Enter Serial Number 
-                        <select
-                          onChange={(e) => changeAssignedTo(record._id, e.target.value)}
-                          className="w-full px-3 py-1 bg-gray-100 rounded-md"
-                        >
-                          <option value=""></option>
-                          <option value="Person 1">Person 1</option>
-                          <option value="Person 2">Person 2</option>
-                          <option value="Person 3">Person 3</option>
-                          <option value="Person 4">Person 4</option>
-                          <option value="Person 5">Person 5</option>
-                        </select>
-                      </div>
+                      <button
+  onClick={() => setEditingSerial(record._id)}
+  className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
+>
+  Update serial number
+</button>
+{editingSerial === record._id && (
+  <div className="block w-full px-4 py-2 text-left text-sm">
+    <input
+      type="text"
+      placeholder="Enter new serial number"
+      className="w-full px-3 py-1 border rounded-md"
+      value={serialInput}
+      onChange={(e) => setSerialInput(e.target.value)}
+    />
+    <button
+      onClick={() => changeSerialNumber(record._id, serialInput)}
+      className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+    >
+      Save
+    </button>
+  </div>
+)}
+<button
+  onClick={() => setEditingEmail(record._id)}
+  className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
+>
+  update email
+</button>
+{editingEmail === record._id && (
+  <div className="block w-full px-4 py-2 text-left text-sm">
+    <input
+      type="email"
+      placeholder="Enter new email"
+      className="w-full px-3 py-1 border rounded-md"
+      value={emailInput}
+      onChange={(e) => setEmailInput(e.target.value)}
+    />
+    <button
+      onClick={() => changeEmail(record._id, emailInput)}
+      className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+    >
+      Save
+    </button>
+  </div>
+)}
+
+
+                      
+                      
                       <button
                         onClick={() => changeStatusOfCall(record._id, "Complete")}
                         className="block w-full px-4 py-2 text-left text-sm text-green-500 bg-white rounded-md hover:bg-gray-100"
                       >
                         Mark Call as Completed
                       </button>
+                      
 
                       <button
                         onClick={() => deleteRecord(record._id)}
@@ -1437,11 +1622,11 @@ const dropdownRef = useRef(null);
                         className="w-full px-3 py-1 bg-gray-100 rounded-md"
                       >
                         <option value=""></option>
-                        <option value="Person 1">Person 1</option>
-                        <option value="Person 2">Person 2</option>
-                        <option value="Person 3">Person 3</option>
-                        <option value="Person 4">Person 4</option>
-                        <option value="Person 5">Person 5</option>
+                        <option value="Resource 1">Resource 1</option>
+                        <option value="Resource 2">Resource 2</option>
+                        <option value="Resource 3">Resource 3</option>
+                        <option value="Resource 4">Resource 4</option>
+                        <option value="Resource 5">Resource 5</option>
                       </select>
                     </div>
                     <button
