@@ -14,7 +14,7 @@ export function HeroScrollDemo() {
       <div className="text-2xl sm:text-3xl md:text-4xl font-semibold text-gray-900">
         Introducing.<br />
         <span className="text-6xl sm:text-7xl md:text-9xl lg:text-[11rem] font-bold mt-1 leading-none block">
-  <span className="bg-clip-text text-gray-800">Tall</span>
+  <span className="bg-clip-text text-gray-800">Advent</span>
   <span className="bg-clip-text text-indigo-500">Ai</span>
 </span>
 
