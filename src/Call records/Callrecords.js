@@ -10,6 +10,8 @@ const CallRecords = () => {
   const [errors, setErrors] = useState({});
   const [editingEmail, setEditingEmail] = useState(null);
   const [emailInput, setEmailInput] = useState('');
+  const [showTodayOnly, setShowTodayOnly] = useState(false);
+
   
 
 
@@ -201,66 +203,7 @@ const handleFormSubmit = (e, mode = "add") => {
 
 
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name]: value,
-    }));
-  };
-
-  const applyFilters = () => {
-    let filtered = callRecords;
   
-    if (filters.typeOfService) {
-      filtered = filtered.filter((record) =>
-        record.typeOfService.toLowerCase().includes(filters.typeOfService.toLowerCase())
-      );
-    }
-  
-    if (filters.date) {
-      filtered = filtered.filter(
-        (record) => new Date(record.callTime).toDateString() === new Date(filters.date).toDateString()
-      );
-    }
-  
-    if (filters.company) {
-      filtered = filtered.filter((record) =>
-        record.company.toLowerCase().includes(filters.company.toLowerCase())
-      );
-    }
-  
-    if (filters.serialNumber) {
-      filtered = filtered.filter((record) =>
-        record.serialNumber.includes(filters.serialNumber)
-      );
-    }
-  
-    if (filters.assignedTo) {
-      filtered = filtered.filter((record) =>
-        record.assignedTo.toLowerCase().includes(filters.assignedTo.toLowerCase())
-      );
-    }
-  
-    if (filters.statusOfCall) {
-      if (filters.statusOfCall === "Complete") {
-        filtered = filtered.filter((record) => record.statusOfCall === "Complete");
-      } else if (filters.statusOfCall === "Incomplete") {
-        filtered = filtered.filter((record) => record.statusOfCall === "Incomplete");
-      } else if (filters.statusOfCall === "Requested") {
-        filtered = filtered.filter((record) => record.statusOfCall === "Requested");
-      } else if (filters.statusOfCall === "To Bill") {
-        filtered = filtered.filter((record) => record.statusOfCall === "To Bill");
-      } else if (filters.statusOfCall === "Others") {
-        filtered = filtered.filter(
-          (record) => record.statusOfCall !== "Complete" && record.statusOfCall !== "Incomplete"
-        );
-      }
-    }
-  
-    setFilteredRecords(filtered);
-    setFilterMenuVisible(false);
-  };
   const requiredFields = ["callerName", "phoneNumber", "company", "typeOfService"];
 
   const handleKeyNavigation = (e) => {
@@ -510,7 +453,66 @@ const [sortBy, setSortBy] = useState('callTime'); // Default to sorting by callT
 const handleSortChange = (field) => {
   setSortBy(field); // Update the sortBy state based on the selected field
 };
+const handleFilterChange = (e) => {
+  const { name, value } = e.target;
+  setFilters((prevFilters) => ({
+    ...prevFilters,
+    [name]: value,
+  }));
+};
 
+const applyFilters = () => {
+  let filtered = callRecords;
+
+  if (filters.typeOfService) {
+    filtered = filtered.filter((record) =>
+      record.typeOfService.toLowerCase().includes(filters.typeOfService.toLowerCase())
+    );
+  }
+
+  if (filters.date) {
+    filtered = filtered.filter(
+      (record) => new Date(record.callTime).toDateString() === new Date(filters.date).toDateString()
+    );
+  }
+
+  if (filters.company) {
+    filtered = filtered.filter((record) =>
+      record.company.toLowerCase().includes(filters.company.toLowerCase())
+    );
+  }
+
+  if (filters.serialNumber) {
+    filtered = filtered.filter((record) =>
+      record.serialNumber.includes(filters.serialNumber)
+    );
+  }
+
+  if (filters.assignedTo) {
+    filtered = filtered.filter((record) =>
+      record.assignedTo.toLowerCase().includes(filters.assignedTo.toLowerCase())
+    );
+  }
+
+  if (filters.statusOfCall) {
+    if (filters.statusOfCall === "Complete") {
+      filtered = filtered.filter((record) => record.statusOfCall === "Complete");
+    } else if (filters.statusOfCall === "Incomplete") {
+      filtered = filtered.filter((record) => record.statusOfCall === "Incomplete");
+    } else if (filters.statusOfCall === "Requested") {
+      filtered = filtered.filter((record) => record.statusOfCall === "Requested");
+    } else if (filters.statusOfCall === "To Bill") {
+      filtered = filtered.filter((record) => record.statusOfCall === "To Bill");
+    } else if (filters.statusOfCall === "Others") {
+      filtered = filtered.filter(
+        (record) => record.statusOfCall !== "Complete" && record.statusOfCall !== "Incomplete"
+      );
+    }
+  }
+
+  setFilteredRecords(filtered);
+  setFilterMenuVisible(false);
+};
 
 const applySort = () => {
   let sortedRecords = [...filteredRecords];
@@ -660,14 +662,24 @@ const dropdownRef = useRef(null);
   <h2 className="text-2xl font-bold text-gray-800">Add Call Record</h2>
   <div className="flex items-center space-x-2 text-gray-700">
     
-    <span className="text-md font-medium">
-      {new Date().toLocaleDateString('en-IN', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      })}
-    </span>
+  <div className="flex-4 flex-row">
+  <label htmlFor="callTime" className="block text-gray-700 font-medium mb-1">Date</label>
+  <input
+  type="date"
+  id="callTime"
+  name="callTime"
+  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+  value={formData.callTime?.split('T')[0] || new Date().toISOString().split('T')[0]}
+  onChange={handleInputChange}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // prevent form submit if any
+      callerNameRef.current?.focus();
+    }
+  }}
+/>
+
+</div>
   </div>
 </div>
               <form onSubmit={handleFormSubmit} className="space-y-3">
@@ -760,17 +772,8 @@ const dropdownRef = useRef(null);
             
                 {/* Call Time */}
                 <div className="flex space-x-3">
-                <div className="flex-4">
-  <label htmlFor="callTime" className="block text-gray-700 font-medium mb-1">Date</label>
-  <div className="flex items-center px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-800">
-    {new Date(formData.callTime).toLocaleDateString('en-IN', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    })}
-  </div>
-</div>
+                
+
 
                 
   <div className="flex-1">
@@ -914,11 +917,11 @@ const dropdownRef = useRef(null);
             {activeTab === "view" && (
               <div>
               {/* View Format Toggle */}
-              <div className="flex ml-6  mb-6">
+              <div className="flex mb-6">
             
               <button
   onClick={() => handleViewToggle("table")}
-  className={`flex items-center gap-2 px-4  h-12  rounded-md ${
+  className={`flex items-center gap-1 px-2  h-12  rounded-md ${
     activeView === "table"
       ? "bg-indigo-600 text-white"
       : "bg-gray-200 text-gray-600"
@@ -942,7 +945,7 @@ const dropdownRef = useRef(null);
 
 <button
   onClick={() => handleViewToggle("record")}
-  className={`flex items-center gap-2 px-4 py-2 h-12 ml-3 mr-6 rounded-md ${
+  className={`flex items-center gap-2 px-4 py-2 h-12 ml-2 mr-2 rounded-md ${
     activeView === "record"
       ? "bg-indigo-600 text-white"
       : "bg-gray-200 text-gray-600"
@@ -965,7 +968,7 @@ const dropdownRef = useRef(null);
   </svg>
   Sheet View
 </button>
-<div className="flex justify-center items-center h-12 gap-4 mr-6 w-full max-w-lg">
+<div className="flex justify-center items-center h-12 gap-4 mr-2 w-full max-w-lg">
   <div className="flex items-center w-full h-12 border bg-white border-gray-400 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden">
     {/* Search Icon */}
     <div className="flex items-center px-3 bg-white">
@@ -1009,6 +1012,7 @@ const dropdownRef = useRef(null);
       <option value="company">Company Name</option>
       <option value="phoneNumber">Phone Number</option>
       <option value="serialNumber">Serial Number</option>
+    
     </select>
   </div>
 </div>
@@ -1127,6 +1131,17 @@ const dropdownRef = useRef(null);
     </div>
   </div>
 )}
+            <button
+  onClick={() => setShowTodayOnly(!showTodayOnly)}
+  className={`flex items-center gap-1 px-3 ml-3 rounded-md h-12  bg-white text-indigo-600 border border-indigo-600 hover:bg-indigo-100 ${
+    showTodayOnly
+      ? "bg-indigo-700 text-indigo-700"
+      : "bg-white text-indigo-700 border border-indigo-700"
+  }`}
+>
+  {showTodayOnly ? "Show All" : "Show Today"}
+</button>
+
             <button
   onClick={() => setSortMenuVisible(!sortMenuVisible)}
   className="flex items-center gap-1 px-3 ml-3 rounded-md h-12  bg-white text-indigo-600 border border-indigo-600 hover:bg-indigo-100"
@@ -1294,7 +1309,19 @@ const dropdownRef = useRef(null);
     <div className="max-w-5xl ml-20 overflow-hidden bg-white shadow sm:rounded-lg">
       <div className="divide-y divide-gray-200">
         <div className="max-h-[700px] overflow-y-auto relative">
-          {filteredRecords1.map((record) => (
+          {filteredRecords1
+          .filter((record) => {
+            if (!showTodayOnly) return true;
+        
+            const today = new Date();
+            const callDate = new Date(record.callTime);
+            return (
+              today.getDate() === callDate.getDate() &&
+              today.getMonth() === callDate.getMonth() &&
+              today.getFullYear() === callDate.getFullYear()
+            );
+          })
+          .map((record) => (
             <div key={record._id} className="px-4 py-4 sm:px-6">
               <div className="flex justify-between items-center">
                 <div>
@@ -1391,14 +1418,26 @@ const dropdownRef = useRef(null);
       value={serialInput}
       onChange={(e) => setSerialInput(e.target.value)}
     />
+    
+    {/* Warning message */}
+    {serialInput.length !== 9 && (
+      <p className="text-red-600 text-sm mt-1">Serial number must be exactly 9 digits.</p>
+    )}
+
     <button
-      onClick={() => changeSerialNumber(record._id, serialInput)}
-      className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+      onClick={() => {
+        if (serialInput.length === 9) {
+          changeSerialNumber(record._id, serialInput);
+        }
+      }}
+      className={`mt-2 px-3 py-1 rounded-md text-white ${serialInput.length === 9 ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}
+      disabled={serialInput.length !== 9}
     >
       Save
     </button>
   </div>
 )}
+
 <button
   onClick={() => setEditingEmail(record._id)}
   className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
@@ -1516,6 +1555,7 @@ const dropdownRef = useRef(null);
       </thead>
       <tbody>
         {paginatedRecords
+        
           .filter((record) => {
             const searchValue = searchQuery.toLowerCase();
             if (searchBy === "company") {
@@ -1528,6 +1568,17 @@ const dropdownRef = useRef(null);
               return record.serialNumber && record.serialNumber.toLowerCase().includes(searchValue);
             }
             return true;
+          })
+          .filter((record) => {
+            if (!showTodayOnly) return true;
+        
+            const today = new Date();
+            const callDate = new Date(record.callTime);
+            return (
+              today.getDate() === callDate.getDate() &&
+              today.getMonth() === callDate.getMonth() &&
+              today.getFullYear() === callDate.getFullYear()
+            );
           })
           .map((record, index) => (
             <tr
@@ -1649,27 +1700,34 @@ const dropdownRef = useRef(null);
       </button>
 
       {editingSerial === record._id && (
-        <div className="block w-full px-4 py-2 text-left text-sm">
-          <input
-            type="text"
-            placeholder="Enter new serial number"
-            className="w-full px-3 py-1 border rounded-md"
-            value={serialInput}
-            onChange={(e) => setSerialInput(e.target.value)}
-          />
-          <button
-            onClick={() => {
-              changeSerialNumber(record._id, serialInput);
-              setShowOptionsForRecord(null);
-               // Optional: hide the input again
-            }}
-            
-            className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
-          >
-            Save
-          </button>
-        </div>
-      )}
+  <div className="block w-full px-4 py-2 text-left text-sm">
+    <input
+      type="text"
+      placeholder="Enter new serial number"
+      className="w-full px-3 py-1 border rounded-md"
+      value={serialInput}
+      onChange={(e) => setSerialInput(e.target.value)}
+    />
+    
+    {/* Warning message */}
+    {serialInput.length !== 9 && (
+      <p className="text-red-600 text-sm mt-1">Serial number must be exactly 9 digits.</p>
+    )}
+
+    <button
+      onClick={() => {
+        if (serialInput.length === 9) {
+          changeSerialNumber(record._id, serialInput);
+        }
+      }}
+      className={`mt-2 px-3 py-1 rounded-md text-white ${serialInput.length === 9 ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}
+      disabled={serialInput.length !== 9}
+    >
+      Save
+    </button>
+  </div>
+)}
+
 
       <button
         onClick={() => {
@@ -1708,15 +1766,18 @@ const dropdownRef = useRef(null);
       </button>
 
       <button
-        onClick={() => {
-          deleteRecord(record._id);
-          setShowOptionsForRecord(null); // Close dropdown
-        }}
-        
-        className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
-      >
-        Delete
-      </button>
+  onClick={() => {
+    const confirmed = window.confirm("Are you sure you want to delete this record?");
+    if (confirmed) {
+      deleteRecord(record._id);
+      setShowOptionsForRecord(null); // Close dropdown
+    }
+  }}
+  className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+>
+  Delete
+</button>
+
     </div>
   )}
 </td>
