@@ -371,27 +371,48 @@ const handleExport = () => {
       .catch((error) => console.error("Error updating assigned to:", error));
   };
   const changeStatusOfCall = (id, newStatus) => {
+    const recordToUpdate = callRecords.find(record => record._id === id);
+  
+    const updatedFields = { statusOfCall: newStatus };
+  
+    if (recordToUpdate && newStatus === "Complete") {
+      const mapAssignedTo = {
+        "Kanakaraj Sir": "CKRAJ",
+        "Geetha": "GK",
+        "Sathish": "satish",
+        "Santhosh": "santosh",
+        "Srijith": "srijit"
+      };
+  
+      const newAssigned = mapAssignedTo[recordToUpdate.assignedTo];
+      if (newAssigned) {
+        updatedFields.assignedTo = newAssigned;
+      }
+    }
+  
     axios
-      .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, { statusOfCall: newStatus })
+      .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, updatedFields)
       .then((response) => {
         console.log("Status updated:", response.data);
   
-        // Update local state to reflect the changes
         setCallRecords((prevRecords) =>
           prevRecords.map((record) =>
-            record._id === id ? { ...record, statusOfCall: newStatus } : record
-          )
-        );
-        setFilteredRecords((prevFiltered) =>
-          prevFiltered.map((record) =>
-            record._id === id ? { ...record, statusOfCall: newStatus } : record
+            record._id === id ? { ...record, ...updatedFields } : record
           )
         );
   
-        setEditingStatus(null); // Close the input field
+        setFilteredRecords((prevFiltered) =>
+          prevFiltered.map((record) =>
+            record._id === id ? { ...record, ...updatedFields } : record
+          )
+        );
+  
+        setEditingStatus(null);
       })
       .catch((error) => console.error("Error updating status:", error));
   };
+  
+
   const changeSerialNumber = (id, newSerial) => {
     axios
       .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, { serialNumber: newSerial })
@@ -821,16 +842,17 @@ const dropdownRef = useRef(null);
       Select a service
     </option>
     <option value="License">License</option>
-    <option value="Company">Company</option>
-    <option value="Security">Security</option>
     <option value="Data">Data</option>
-    <option value="Exchange">Exchange</option>
-    <option value="Share">Share</option>
-    <option value="Print">Print</option>
+    <option value="Print / Share">Print / Share</option>
+    <option value="E-Way Bill / E-Invoice ">E-Way Bill / E-Invoice </option>
+    <option value="GST">GST</option>
+    <option value="AWS">AWS</option>
+    <option value="General Doubts">General Doubts</option>
     <option value="Customization">Customization</option>
-    <option value="General">General</option>
-    <option value="Accounts">Accounts</option>
+    <option value="TSS">TSS</option>
+    <option value="New Pack">New Pack</option>
     <option value="Others">Others</option>
+    <option value="Repeat">Repeat</option>
   </select>
   {errors.typeOfService && (
     <p className="text-sm text-red-600 mt-1">{errors.typeOfService}</p>
@@ -875,11 +897,11 @@ const dropdownRef = useRef(null);
       className="w-full px-3 py-2 border border-gray-300 rounded-md"
     >
       <option value=""></option>
-      <option value="Resource 1">Resource 1</option>
-      <option value="Resource 2">Resource 2</option>
-      <option value="Resource 3">Resource 3</option>
-      <option value="Resource 4">Resource 4</option>
-      <option value="Resource 5">Resource 5</option>
+      <option value="Kanakaraj Sir">Kanakaraj Sir</option>
+      <option value="Geetha">Geetha</option>
+      <option value="Sathish">Sathish</option>
+      <option value="Santhosh">Santhosh</option>
+      <option value="Srijith">Srijith</option>
     </select>
   </div>
 </div>
@@ -1404,11 +1426,11 @@ const dropdownRef = useRef(null);
                           className="w-full px-3 py-1 bg-gray-100 rounded-md"
                         >
                           <option value=""></option>
-                          <option value="Resource 1">Resource 1</option>
-                          <option value="Resource 2">Resource 2</option>
-                          <option value="Resource 3">Resource 3</option>
-                          <option value="Resource 4">Resource 4</option>
-                          <option value="Resource 5">Resource 5</option>
+                          <option value="Kanakaraj Sir">Kanakaraj Sir</option>
+                          <option value="Geetha">Geetha</option>
+                          <option value="Sathish">Sathish</option>
+                          <option value="Santhosh">Santhosh</option>
+                          <option value="Srijith">Srijith</option>
                         </select>
                       </div>
                       <button
@@ -1660,26 +1682,29 @@ const dropdownRef = useRef(null);
       </button>
 
       {editingStatus === record._id && (
-        <div className="block w-full px-4 py-2 text-left text-sm">
-          <input
-            type="text"
-            placeholder="Enter new status"
-            className="w-full px-3 py-1 border rounded-md"
-            value={statusInput}
-            onChange={(e) => setStatusInput(e.target.value)}
-          />
-          <button
-  onClick={() => {
-    changeStatusOfCall(record._id, statusInput);
-    setShowOptionsForRecord(null); // Close dropdown
-  }}
-  className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
->
-  Save
-</button>
-
-        </div>
-      )}
+  <div className="block w-full px-4 py-2 text-left text-sm">
+    <input
+      type="text"
+      placeholder="Enter new status"
+      className="w-full px-3 py-1 border rounded-md"
+      value={statusInput}
+      onChange={(e) => setStatusInput(e.target.value)}
+    />
+    <button
+      onClick={() => {
+        if (statusInput.trim() === "") {
+          alert("Status cannot be empty.");
+          return;
+        }
+        changeStatusOfCall(record._id, statusInput);
+        setShowOptionsForRecord(null); // Close dropdown
+      }}
+      className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+    >
+      Save
+    </button>
+  </div>
+)}
 
       <div className="block w-full px-4 py-2 text-left text-sm text-indigo-600">
         Change Assigned To
@@ -1692,11 +1717,11 @@ const dropdownRef = useRef(null);
 >
 
           <option value=""></option>
-          <option value="Resource 1">Resource 1</option>
-          <option value="Resource 2">Resource 2</option>
-          <option value="Resource 3">Resource 3</option>
-          <option value="Resource 4">Resource 4</option>
-          <option value="Resource 5">Resource 5</option>
+          <option value="Kanakaraj Sir">Kanakaraj Sir</option>
+          <option value="Geetha">Geetha</option>
+          <option value="Sathish">Sathish</option>
+          <option value="Santhosh">Santhosh</option>
+          <option value="Srijith">Srijith</option>
         </select>
       </div>
 

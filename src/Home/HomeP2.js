@@ -370,28 +370,47 @@ const handleExport = () => {
       })
       .catch((error) => console.error("Error updating assigned to:", error));
   };
-  const changeStatusOfCall = (id, newStatus) => {
-    axios
-      .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, { statusOfCall: newStatus })
-      .then((response) => {
-        console.log("Status updated:", response.data);
-  
-        // Update local state to reflect the changes
-        setCallRecords((prevRecords) =>
-          prevRecords.map((record) =>
-            record._id === id ? { ...record, statusOfCall: newStatus } : record
-          )
-        );
-        setFilteredRecords((prevFiltered) =>
-          prevFiltered.map((record) =>
-            record._id === id ? { ...record, statusOfCall: newStatus } : record
-          )
-        );
-  
-        setEditingStatus(null); // Close the input field
-      })
-      .catch((error) => console.error("Error updating status:", error));
-  };
+   const changeStatusOfCall = (id, newStatus) => {
+       const recordToUpdate = callRecords.find(record => record._id === id);
+     
+       const updatedFields = { statusOfCall: newStatus };
+     
+       if (recordToUpdate && newStatus === "Complete") {
+         const mapAssignedTo = {
+           "Kanakaraj Sir": "CKRAJ",
+           "Geetha": "GK",
+           "Sathish": "satish",
+           "Santhosh": "santosh",
+           "Srijith": "srijit"
+         };
+     
+         const newAssigned = mapAssignedTo[recordToUpdate.assignedTo];
+         if (newAssigned) {
+           updatedFields.assignedTo = newAssigned;
+         }
+       }
+     
+       axios
+         .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, updatedFields)
+         .then((response) => {
+           console.log("Status updated:", response.data);
+     
+           setCallRecords((prevRecords) =>
+             prevRecords.map((record) =>
+               record._id === id ? { ...record, ...updatedFields } : record
+             )
+           );
+     
+           setFilteredRecords((prevFiltered) =>
+             prevFiltered.map((record) =>
+               record._id === id ? { ...record, ...updatedFields } : record
+             )
+           );
+     
+           setEditingStatus(null);
+         })
+         .catch((error) => console.error("Error updating status:", error));
+     };
   const changeSerialNumber = (id, newSerial) => {
     axios
       .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, { serialNumber: newSerial })
@@ -821,16 +840,17 @@ const dropdownRef = useRef(null);
       Select a service
     </option>
     <option value="License">License</option>
-    <option value="Company">Company</option>
-    <option value="Security">Security</option>
     <option value="Data">Data</option>
-    <option value="Exchange">Exchange</option>
-    <option value="Share">Share</option>
-    <option value="Print">Print</option>
+    <option value="Print / Share">Print / Share</option>
+    <option value="E-Way Bill / E-Invoice ">E-Way Bill / E-Invoice </option>
+    <option value="GST">GST</option>
+    <option value="AWS">AWS</option>
+    <option value="General Doubts">General Doubts</option>
     <option value="Customization">Customization</option>
-    <option value="General">General</option>
-    <option value="Accounts">Accounts</option>
+    <option value="TSS">TSS</option>
+    <option value="New Pack">New Pack</option>
     <option value="Others">Others</option>
+    <option value="Repeat">Repeat</option>
   </select>
   {errors.typeOfService && (
     <p className="text-sm text-red-600 mt-1">{errors.typeOfService}</p>
@@ -1308,7 +1328,7 @@ const dropdownRef = useRef(null);
       <div className="divide-y divide-gray-200">
         <div className="max-h-[700px] overflow-y-auto relative">
           {filteredRecords1
-          .filter((record) => record.assignedTo === "Resource 2")
+          .filter((record) => record.assignedTo === "Geetha")
           .filter((record) => {
             if (!showTodayOnly) return true;
         
@@ -1536,7 +1556,7 @@ const dropdownRef = useRef(null);
       </thead>
       <tbody>
         {paginatedRecords
-        .filter((record) => record.assignedTo === "Resource 2")
+        .filter((record) => record.assignedTo === "Geetha")
         
           .filter((record) => {
             const searchValue = searchQuery.toLowerCase();
