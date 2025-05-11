@@ -111,7 +111,7 @@ export default function Hero() {
       <DevToolButton/>
       <Demo/>
       
-      <div className="mx-auto max-w-2xl text-center mt-[-40px] pt-0 mb-16">
+      <div className="mx-auto max-w-2xl text-center mt-[40px] pt-0 mb-16">
       <h2 className="text-3xl  py-1 text-black font-semibold">
             Your Business, Powered by AI Innovation.
           </h2>
@@ -120,10 +120,10 @@ export default function Hero() {
           </p>
           <div className="mt-12 flex items-center justify-center gap-x-6 pb-20">
             <a
-              href="#"
+              href="/signin"
               className="rounded-md bg-indigo-600 px-4 py-3 text-medium font-semibold text-white shadow-sm hover:bg-white hover:text-indigo-500 transition"
             >
-              View Features
+              Get started
             </a>
             <a
               href="#"

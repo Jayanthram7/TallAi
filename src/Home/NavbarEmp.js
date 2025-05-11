@@ -3,6 +3,7 @@ import { Bars3Icon, XMarkIcon, BellIcon } from "@heroicons/react/24/outline";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { Link } from "react-router-dom"; // Import Link from React Router
 import account from "../Assets/Account-Login.svg"; // Ensure this path is correct
+import logo from "../Assets/logo.jpg"; // Ensure this path is correct
 
 const navigation = [
   { name: "View Records", path: "/homeEmp1", current: false }, // Update to use path
@@ -30,11 +31,11 @@ export default function Navbar() {
             <div className="flex shrink-0 items-center">
               <img
                 alt="Your Company"
-                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500"
-                className="h-8 w-auto"
+              src={logo}
+                className="h-10 rounded-xl w-auto"
               />
             </div>
-            <div className="hidden sm:ml-6 sm:block">
+            <div className="hidden sm:ml-6 sm:block items-center justify-center">
               <div className="flex space-x-4">
                 {navigation.map((item) => (
                   <Link

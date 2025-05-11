@@ -4,20 +4,38 @@ import axios from "axios";
 import { useEfect, useRef } from "react";
 import excel from "../Assets/excel.png";
 import * as XLSX from "xlsx";
+import { PlusCircle, Eye } from "lucide-react";
 
 const CallRecords = () => {
+  const [errors, setErrors] = useState({});
+  const [editingEmail, setEditingEmail] = useState(null);
+  const [emailInput, setEmailInput] = useState('');
+  const [showTodayOnly, setShowTodayOnly] = useState(false);
+
+  
+
+
+  const callerNameRef = useRef(null);
+  const generateDefaultDate = () => {
+    const now = new Date();
+    return now.toISOString().slice(0, 16); // Format: "YYYY-MM-DDTHH:mm"
+  };
+  
+  const generateRandomToken = () => {
+    return Math.floor(10000 + Math.random() * 90000).toString(); // 5-digit number
+  };
   const [formData, setFormData] = useState({
     phoneNumber: "",
     callerName: "",
     company: "",
     serialNumber: "",
-    callTime: "",
+    callTime: generateDefaultDate(),   // ✅ Set a valid default datetime
     reason: "",
     typeOfService: "",
     assignedTo: "",
-    tokenNumber: "",
-    email: "", // New email field
-    statusOfCall: "Incomplete", // Default value
+    tokenNumber: generateRandomToken(), // ✅ Generate token on load
+    email: "",
+    statusOfCall: "Incomplete",
   });
 
   const [callRecords, setCallRecords] = useState([]);
@@ -88,6 +106,30 @@ const CallRecords = () => {
   }, [activeTab]);
   const [editingStatus, setEditingStatus] = useState(null);
 const [statusInput, setStatusInput] = useState("");
+const [editingSerial, setEditingSerial] = useState(null);
+const [serialInput, setSerialInput] = useState("");
+const [serialWarning, setSerialWarning] = useState(false);
+const [phoneWarning, setPhoneWarning] = useState(false);
+
+
+
+
+useEffect(() => {
+  const now = new Date();
+  const formatted = now.toISOString().slice(0, 16); // Format as yyyy-MM-ddTHH:mm
+  setFormData(prev => ({ ...prev, callTime: formatted }));
+}, []);
+useEffect(() => {
+  const generateRandomToken = () => {
+    return Math.floor(10000 + Math.random() * 90000).toString(); // 5-digit number
+  };
+
+  setFormData((prev) => ({
+    ...prev,
+    tokenNumber: generateRandomToken(),
+  }));
+}, []);
+
 
 // Function to handle status update
 const updateStatus = (id, newStatus) => {
@@ -96,107 +138,116 @@ const updateStatus = (id, newStatus) => {
   setEditingStatus(null);
   setStatusInput("");
 };
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+const handleInputChange = (e) => {
+  const { name, value } = e.target;
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-  
-    // Prepend today's date to the token number
-    const tokenPrefix = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-    const tokenWithDate = `${tokenPrefix}-${formData.tokenNumber}`;
-  
-    // Update the formData to include the token number with the date prefix
-    const updatedFormData = { ...formData, tokenNumber: tokenWithDate };
-  
-    axios
-      .post("https://backend-copy-1.onrender.com/api/call-records", updatedFormData)
-      .then((response) => {
-        console.log("Call record added:", response.data);
-        setFormData({
-          phoneNumber: "",
-          callerName: "",
-          company: "",
-          serialNumber: "",
-          callTime: "",
-          reason: "",
-          typeOfService: "",
-          assignedTo: "",
-          tokenNumber: "",
-          email: "", // New email field
-          statusOfCall: "Incomplete",
-        });
-        setActiveTab("view"); // Switch to 'view' tab after adding the record
-      })
-      .catch((error) => console.error("Error adding call record:", error));
-  };
-  
+  if (name === "serialNumber") {
+    setSerialWarning(value.length > 9);
+  }
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name]: value,
-    }));
-  };
+  if (name === "phoneNumber") {
+    setPhoneWarning(value.length > 10);
+  }
 
-  const applyFilters = () => {
-    let filtered = callRecords;
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+};
+
+
+
+
+
+const handleFormSubmit = (e, mode = "add") => {
+  e.preventDefault();
+
+  const tokenPrefix = new Date().toISOString().split("T")[0];
+  const tokenWithDate = `${tokenPrefix}-${formData.tokenNumber}`;
+
+  const updatedFormData = { ...formData, tokenNumber: tokenWithDate };
+
+  axios
+    .post("https://backend-copy-1.onrender.com/api/call-records", updatedFormData)
+    .then((response) => {
+      console.log("Call record added:", response.data);
+
+      // Reset form
+      setFormData({
+        phoneNumber: "",
+        callerName: "",
+        company: "",
+        serialNumber: "",
+        callTime: generateDefaultDate(),
+        reason: "",
+        typeOfService: "",
+        assignedTo: "",
+        tokenNumber: generateRandomToken(),
+        email: "",
+        statusOfCall: "Incomplete",
+      });
+
+      // Switch to view tab if needed
+      if (mode === "view") {
+        setActiveTab("view");
+      }
+
+      // Focus back to caller name input
+      if (callerNameRef.current) {
+        callerNameRef.current.focus();
+      }
+    })
+    .catch((error) => console.error("Error adding call record:", error));
+};
+
+
+
+
   
-    if (filters.typeOfService) {
-      filtered = filtered.filter((record) =>
-        record.typeOfService.toLowerCase().includes(filters.typeOfService.toLowerCase())
-      );
-    }
+  const requiredFields = ["callerName", "phoneNumber", "company", "typeOfService"];
+
+  const handleKeyNavigation = (e) => {
+    const form = e.target.form;
+    const elements = Array.from(
+      form.querySelectorAll("input, select, textarea, button")
+    ).filter(el => !el.disabled && el.type !== "hidden");
   
-    if (filters.date) {
-      filtered = filtered.filter(
-        (record) => new Date(record.callTime).toDateString() === new Date(filters.date).toDateString()
-      );
-    }
+    const currentIndex = elements.indexOf(e.target);
+    const currentName = e.target.name;
   
-    if (filters.company) {
-      filtered = filtered.filter((record) =>
-        record.company.toLowerCase().includes(filters.company.toLowerCase())
-      );
-    }
+    if (e.key === "Enter") {
+      const requiredFields = ["callerName", "phoneNumber", "company", "typeOfService"];
+      const isRequired = requiredFields.includes(currentName);
+      const valuePresent = e.target.value && e.target.value.trim() !== "";
   
-    if (filters.serialNumber) {
-      filtered = filtered.filter((record) =>
-        record.serialNumber.includes(filters.serialNumber)
-      );
-    }
+      if (e.target.tagName === "BUTTON") return;
   
-    if (filters.assignedTo) {
-      filtered = filtered.filter((record) =>
-        record.assignedTo.toLowerCase().includes(filters.assignedTo.toLowerCase())
-      );
-    }
+      e.preventDefault();
   
-    if (filters.statusOfCall) {
-      if (filters.statusOfCall === "Complete") {
-        filtered = filtered.filter((record) => record.statusOfCall === "Complete");
-      } else if (filters.statusOfCall === "Incomplete") {
-        filtered = filtered.filter((record) => record.statusOfCall === "Incomplete");
-      } else if (filters.statusOfCall === "Requested") {
-        filtered = filtered.filter((record) => record.statusOfCall === "Requested");
-      } else if (filters.statusOfCall === "To Bill") {
-        filtered = filtered.filter((record) => record.statusOfCall === "To Bill");
-      } else if (filters.statusOfCall === "Others") {
-        filtered = filtered.filter(
-          (record) => record.statusOfCall !== "Complete" && record.statusOfCall !== "Incomplete"
-        );
+      if (!isRequired || valuePresent) {
+        // Clear error if any
+        setErrors(prev => ({ ...prev, [currentName]: "" }));
+  
+        const nextIndex = currentIndex + 1;
+        if (nextIndex < elements.length) {
+          elements[nextIndex].focus();
+        }
+      } else {
+        // Set error if required but empty
+        setErrors(prev => ({ ...prev, [currentName]: "This field is required" }));
       }
     }
   
-    setFilteredRecords(filtered);
-    setFilterMenuVisible(false);
+    if (e.key === "Escape") {
+      e.preventDefault();
+      const prevIndex = currentIndex - 1;
+      if (prevIndex >= 0) {
+        elements[prevIndex].focus();
+      }
+    }
   };
+  
+  
   const isFilterApplied = Object.keys(filters).length > 0;
   const jisFilterApplied = Boolean(filters.length); // Assuming activeFilters is an array of applied filters
   const [currentPage, setCurrentPage] = useState(1);
@@ -341,6 +392,50 @@ const handleExport = () => {
       })
       .catch((error) => console.error("Error updating status:", error));
   };
+  const changeSerialNumber = (id, newSerial) => {
+    axios
+      .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, { serialNumber: newSerial })
+      .then((response) => {
+        console.log("Serial number updated:", response.data);
+  
+        setCallRecords((prevRecords) =>
+          prevRecords.map((record) =>
+            record._id === id ? { ...record, serialNumber: newSerial } : record
+          )
+        );
+        setFilteredRecords((prevFiltered) =>
+          prevFiltered.map((record) =>
+            record._id === id ? { ...record, serialNumber: newSerial } : record
+          )
+        );
+  
+        setEditingSerial(null); // Close the input field
+      })
+      .catch((error) => console.error("Error updating serial number:", error));
+  };
+  const changeEmail = (id, newEmail) => {
+    axios
+      .put(`https://backend-copy-1.onrender.com/api/call-records/${id}`, { email: newEmail })
+      .then((response) => {
+        console.log("Email updated:", response.data);
+  
+        setCallRecords((prevRecords) =>
+          prevRecords.map((record) =>
+            record._id === id ? { ...record, email: newEmail } : record
+          )
+        );
+        setFilteredRecords((prevFiltered) =>
+          prevFiltered.map((record) =>
+            record._id === id ? { ...record, email: newEmail } : record
+          )
+        );
+  
+        setEditingEmail(null); // Close the email edit input field
+      })
+      .catch((error) => console.error("Error updating email:", error));
+  };
+  
+  
   const [activeView, setActiveView] = useState("table"); // Track the current view (either "record" or "table")
 
 const handleViewToggle = (view) => {
@@ -358,7 +453,66 @@ const [sortBy, setSortBy] = useState('callTime'); // Default to sorting by callT
 const handleSortChange = (field) => {
   setSortBy(field); // Update the sortBy state based on the selected field
 };
+const handleFilterChange = (e) => {
+  const { name, value } = e.target;
+  setFilters((prevFilters) => ({
+    ...prevFilters,
+    [name]: value,
+  }));
+};
 
+const applyFilters = () => {
+  let filtered = callRecords;
+
+  if (filters.typeOfService) {
+    filtered = filtered.filter((record) =>
+      record.typeOfService.toLowerCase().includes(filters.typeOfService.toLowerCase())
+    );
+  }
+
+  if (filters.date) {
+    filtered = filtered.filter(
+      (record) => new Date(record.callTime).toDateString() === new Date(filters.date).toDateString()
+    );
+  }
+
+  if (filters.company) {
+    filtered = filtered.filter((record) =>
+      record.company.toLowerCase().includes(filters.company.toLowerCase())
+    );
+  }
+
+  if (filters.serialNumber) {
+    filtered = filtered.filter((record) =>
+      record.serialNumber.includes(filters.serialNumber)
+    );
+  }
+
+  if (filters.assignedTo) {
+    filtered = filtered.filter((record) =>
+      record.assignedTo.toLowerCase().includes(filters.assignedTo.toLowerCase())
+    );
+  }
+
+  if (filters.statusOfCall) {
+    if (filters.statusOfCall === "Complete") {
+      filtered = filtered.filter((record) => record.statusOfCall === "Complete");
+    } else if (filters.statusOfCall === "Incomplete") {
+      filtered = filtered.filter((record) => record.statusOfCall === "Incomplete");
+    } else if (filters.statusOfCall === "Requested") {
+      filtered = filtered.filter((record) => record.statusOfCall === "Requested");
+    } else if (filters.statusOfCall === "To Bill") {
+      filtered = filtered.filter((record) => record.statusOfCall === "To Bill");
+    } else if (filters.statusOfCall === "Others") {
+      filtered = filtered.filter(
+        (record) => record.statusOfCall !== "Complete" && record.statusOfCall !== "Incomplete"
+      );
+    }
+  }
+
+  setFilteredRecords(filtered);
+  setFilterMenuVisible(false);
+};
 
 const applySort = () => {
   let sortedRecords = [...filteredRecords];
@@ -504,36 +658,76 @@ const dropdownRef = useRef(null);
           <div className="col-span-9">
             {activeTab === "add" && (
               <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 border border-gray-300">
-              <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Add Call Record</h2>
+              <div className="flex justify-between items-center mb-6">
+  <h2 className="text-2xl font-bold text-gray-800">Add Call Record</h2>
+  <div className="flex items-center space-x-2 text-gray-700">
+    
+  <div className="flex-4 flex-row">
+  <label htmlFor="callTime" className="block text-gray-700 font-medium mb-1">Date</label>
+  <input
+  type="date"
+  id="callTime"
+  name="callTime"
+  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
+  value={formData.callTime?.split('T')[0] || new Date().toISOString().split('T')[0]}
+  onChange={handleInputChange}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // prevent form submit if any
+      callerNameRef.current?.focus();
+    }
+  }}
+/>
+
+</div>
+  </div>
+</div>
               <form onSubmit={handleFormSubmit} className="space-y-3">
                 {/* Phone Number and Caller Name */}
                 <div className="flex space-x-3">
                 <div className="flex-1">
-                    <label htmlFor="callerName" className="block text-gray-700 font-medium">Caller Name</label>
-                    <input
-                      type="text"
-                      name="callerName"
-                      id="callerName"
-                      placeholder="Caller Name"
-                      value={formData.callerName}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      required
-                    />
-                  </div>
+  <label htmlFor="callerName" className="block text-gray-700 font-medium">
+    Caller Name
+  </label>
+  <input
+    ref={callerNameRef}
+    type="text"
+    name="callerName"
+    id="callerName"
+    placeholder="Caller Name"
+    value={formData.callerName}
+    onKeyDown={handleKeyNavigation}
+    onChange={handleInputChange}
+    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+    required
+  />
+  {errors.callerName && (
+    <p className="text-sm text-red-600 mt-1">{errors.callerName}</p>
+  )}
+</div>
+
                   <div className="flex-1">
-                    <label htmlFor="phoneNumber" className="block text-gray-700 font-medium">Phone Number</label>
-                    <input
-                      type="text"
-                      name="phoneNumber"
-                      id="phoneNumber"
-                      placeholder="Phone Number"
-                      value={formData.phoneNumber}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      required
-                    />
-                  </div>
+  <label htmlFor="phoneNumber" className="block text-gray-700 font-medium">Phone Number</label>
+  <input
+    type="text"
+    name="phoneNumber"
+    id="phoneNumber"
+    placeholder="Phone Number"
+    value={formData.phoneNumber}
+    onKeyDown={handleKeyNavigation}
+    onChange={handleInputChange}
+    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+    required
+  />
+  {errors.phoneNumber && (
+  <p className="text-sm text-red-600 mt-1">{errors.phoneNumber}</p>
+)}
+
+  {phoneWarning && (
+    <p className="text-sm text-red-600 mt-1">Phone number cannot exceed 10 digits.</p>
+  )}
+</div>
+
                   
                 </div>
             
@@ -547,37 +741,40 @@ const dropdownRef = useRef(null);
                       id="company"
                       placeholder="Company"
                       value={formData.company}
+                      onKeyDown={handleKeyNavigation}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      required
                     />
+                    {errors.company && (
+    <p className="text-sm text-red-600 mt-1">{errors.company}</p>
+  )}
                   </div>
                   <div className="flex-1">
-                    <label htmlFor="serialNumber" className="block text-gray-700 font-medium">Serial Number</label>
-                    <input
-                      type="text"
-                      name="serialNumber"
-                      id="serialNumber"
-                      placeholder="Serial Number"
-                      value={formData.serialNumber}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
-                  </div>
+  <label htmlFor="serialNumber" className="block text-gray-700 font-medium">Serial Number</label>
+  <input
+    type="text"
+    name="serialNumber"
+    id="serialNumber"
+    placeholder="Serial Number"
+    value={formData.serialNumber}
+    onKeyDown={handleKeyNavigation}
+    onChange={handleInputChange}
+    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+  />
+  
+  {serialWarning && (
+    <p className="text-sm text-red-600 mt-1">Serial number cannot exceed 9 digits.</p>
+  )}
+</div>
+
                 </div>
             
                 {/* Call Time */}
                 <div className="flex space-x-3">
-                <div className="flex-4">
-                  <label htmlFor="callTime" className="block text-gray-700 font-medium">Date</label>
-                  <input
-                    type="datetime-local"
-                    name="callTime"
-                    id="callTime"
-                    value={formData.callTime}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  />
-                </div>
+                
+
+
                 
   <div className="flex-1">
                   <label htmlFor="email" className="block text-gray-700 font-medium">Email</label>
@@ -587,6 +784,7 @@ const dropdownRef = useRef(null);
                     id="email"
                      placeholder="Email"
                     value={formData.email}
+                    onKeyDown={handleKeyNavigation}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
@@ -604,20 +802,41 @@ const dropdownRef = useRef(null);
     id="typeOfService"
     value={formData.typeOfService}
     onChange={handleInputChange}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" && e.target.value) {
+        e.preventDefault(); // Prevent form submit
+        const formElements = Array.from(
+          e.target.form.querySelectorAll("input, select, textarea")
+        ).filter((el) => !el.disabled && el.type !== "hidden");
+        const index = formElements.indexOf(e.target);
+        if (index > -1 && index < formElements.length - 1) {
+          formElements[index + 1].focus();
+        }
+      }
+    }}
     className="w-full px-3 py-2 border border-gray-300 rounded-md"
     required
   >
     <option value="" disabled>
       Select a service
     </option>
-    <option value="Tally Prime - Silver New">Tally Prime - Silver New</option>
-    <option value="Tally Prime - Gold New">Tally Prime - Gold New</option>
-    <option value="TSS">TSS</option>
-    <option value="TDL">TDL</option>
-    <option value="AWS">AWS</option>
-    <option value="TS9">TS9</option>
+    <option value="License">License</option>
+    <option value="Company">Company</option>
+    <option value="Security">Security</option>
+    <option value="Data">Data</option>
+    <option value="Exchange">Exchange</option>
+    <option value="Share">Share</option>
+    <option value="Print">Print</option>
+    <option value="Customization">Customization</option>
+    <option value="General">General</option>
+    <option value="Accounts">Accounts</option>
+    <option value="Others">Others</option>
   </select>
+  {errors.typeOfService && (
+    <p className="text-sm text-red-600 mt-1">{errors.typeOfService}</p>
+  )}
 </div>
+
 
             
                 {/* Reason */}
@@ -628,6 +847,7 @@ const dropdownRef = useRef(null);
                     id="reason"
                     placeholder="Reason"
                     value={formData.reason}
+                    onKeyDown={handleKeyNavigation}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   ></textarea>
@@ -635,41 +855,55 @@ const dropdownRef = useRef(null);
             
                 {/* Token Number and Assigned Task */}
                 <div className="flex space-x-3">
-                  <div className="flex-1">
-                    <label htmlFor="tokenNumber" className="block text-gray-700 font-medium">Token</label>
-                    <input
-                      type="text"
-                      name="tokenNumber"
-                      id="tokenNumber"
-                      placeholder="Token Number"
-                      value={formData.tokenNumber}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
-                  </div>
-            
-                  <div className="flex-1">
-                    <label htmlFor="assignedTo" className="block text-gray-700 font-medium">Assign Task</label>
-                    <select
-                      name="assignedTo"
-                      id="assignedTo"
-                      value={formData.assignedTo}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    >
-                      <option value=""></option>
-                      <option value="Person 1">Person 1</option>
-                    </select>
-                  </div>
-                </div>
+  {/* Token Number (Auto-generated, Read-only) */}
+  <div className="flex-1">
+    <label htmlFor="tokenNumber" className="block text-gray-700 font-medium">Token</label>
+    <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-800">
+      {formData.tokenNumber}
+    </div>
+  </div>
+
+  {/* Assigned To Dropdown */}
+  <div className="flex-1">
+    <label htmlFor="assignedTo" className="block text-gray-700 font-medium">Assign Task</label>
+    <select
+      name="assignedTo"
+      id="assignedTo"
+      value={formData.assignedTo}
+      onKeyDown={handleKeyNavigation}
+      onChange={handleInputChange}
+      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+    >
+      <option value=""></option>
+      
+    </select>
+  </div>
+</div>
+
             
                 {/* Submit Button */}
-                <button
-                  type="submit"
-                  className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500"
-                >
-                  Add Entry
-                </button>
+                <div className="flex space-x-3">
+  <button
+    type="submit"
+    onClick={(e) => handleFormSubmit(e, "add")}
+    onKeyDown={handleKeyNavigation}
+    className="flex items-center justify-center space-x-2 flex-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500"
+  >
+    <PlusCircle size={18} />
+    <span>Add Entry</span>
+  </button>
+
+  <button
+    type="submit"
+    onClick={(e) => handleFormSubmit(e, "view")}
+    onKeyDown={handleKeyNavigation}
+    className="flex items-center justify-center space-x-2 flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500"
+  >
+    <Eye size={18} />
+    <span>Add & View</span>
+  </button>
+</div>
+
               </form>
             </div>
             
@@ -679,11 +913,11 @@ const dropdownRef = useRef(null);
             {activeTab === "view" && (
               <div>
               {/* View Format Toggle */}
-              <div className="flex ml-6  mb-6">
+              <div className="flex mb-6">
             
               <button
   onClick={() => handleViewToggle("table")}
-  className={`flex items-center gap-2 px-4  h-12  rounded-md ${
+  className={`flex items-center gap-1 px-2  h-12  rounded-md ${
     activeView === "table"
       ? "bg-indigo-600 text-white"
       : "bg-gray-200 text-gray-600"
@@ -707,7 +941,7 @@ const dropdownRef = useRef(null);
 
 <button
   onClick={() => handleViewToggle("record")}
-  className={`flex items-center gap-2 px-4 py-2 h-12 ml-3 mr-6 rounded-md ${
+  className={`flex items-center gap-2 px-4 py-2 h-12 ml-2 mr-2 rounded-md ${
     activeView === "record"
       ? "bg-indigo-600 text-white"
       : "bg-gray-200 text-gray-600"
@@ -730,8 +964,9 @@ const dropdownRef = useRef(null);
   </svg>
   Sheet View
 </button>
-<div className="flex justify-center items-center h-12 gap-4 mr-6 w-full max-w-lg">
+<div className="flex justify-center items-center h-12 gap-4 mr-2 w-full max-w-lg relative">
   <div className="flex items-center w-full h-12 border bg-white border-gray-400 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden">
+    
     {/* Search Icon */}
     <div className="flex items-center px-3 bg-white">
       <svg
@@ -747,23 +982,30 @@ const dropdownRef = useRef(null);
           strokeWidth={2}
           d="M11 4a7 7 0 015.657 11.657l3.086 3.086a1 1 0 01-1.414 1.414l-3.086-3.086A7 7 0 1111 4z"
         />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M16 16l4 4"
-        />
       </svg>
     </div>
 
     {/* Input Field */}
     <input
       type="text"
-      placeholder="Search Entry "
+      placeholder="Search Entry"
       value={searchQuery}
       onChange={handleSearch}
-      className="flex-grow pl-2 pr-2 h-full focus:outline-none placeholder-gray-500"
+      className="flex-grow pl-2 pr-8 h-full focus:outline-none placeholder-gray-500"
     />
+
+    {/* Clear (X) Button */}
+    {searchQuery && (
+      <button
+        onClick={() => {
+          setSearchQuery("");
+          setSearchBy("company");
+        }}
+        className="absolute right-44 text-xl text-gray-500 hover:text-red-500"
+      >
+        x
+      </button>
+    )}
 
     {/* Select Dropdown */}
     <select
@@ -777,6 +1019,7 @@ const dropdownRef = useRef(null);
     </select>
   </div>
 </div>
+
 
 
 
@@ -893,6 +1136,17 @@ const dropdownRef = useRef(null);
   </div>
 )}
             <button
+  onClick={() => setShowTodayOnly(!showTodayOnly)}
+  className={`flex items-center gap-1 px-3 ml-3 rounded-md h-12  bg-white text-indigo-600 border border-indigo-600 hover:bg-indigo-100 ${
+    showTodayOnly
+      ? "bg-indigo-700 text-indigo-700"
+      : "bg-white text-indigo-700 border border-indigo-700"
+  }`}
+>
+  {showTodayOnly ? "Show All" : "Show Today"}
+</button>
+
+            <button
   onClick={() => setSortMenuVisible(!sortMenuVisible)}
   className="flex items-center gap-1 px-3 ml-3 rounded-md h-12  bg-white text-indigo-600 border border-indigo-600 hover:bg-indigo-100"
 >
@@ -951,7 +1205,45 @@ const dropdownRef = useRef(null);
       
 
       {/* Date Range Modal */}
-     
+      {showDateModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-md shadow-lg">
+            <h3 className="text-lg font-semibold mb-4">Select Date Range</h3>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Start Date:</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">End Date:</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDateModal(false)}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleExport}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              >
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       
               </div>
@@ -1016,39 +1308,53 @@ const dropdownRef = useRef(null);
       <div className="divide-y divide-gray-200">
         <div className="max-h-[700px] overflow-y-auto relative">
           {filteredRecords1
-            .filter((record) => record.assignedTo === "Resource 1")
-            .map((record) => (
-              <div key={record._id} className="px-4 py-4 sm:px-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-lg font-semibold text-gray-900">{record.company}</p>
-                    <p className="text-sm text-gray-500">Phone: {record.phoneNumber}</p>
-                    <p className="text-sm font-semibold text-gray-700">Caller Name: {record.callerName}</p>
-                    <p className="text-sm text-gray-500">Email: {record.email}</p>
-                    <p className="text-sm text-gray-500">Serial Number: {record.serialNumber}</p>
-                    <p className="text-sm text-gray-500">Type Of Service: {record.typeOfService}</p>
-                    <p className="text-sm text-gray-500">Reason: {record.reason}</p>
-                    <p className="text-sm text-gray-500">Assigned to: {record.assignedTo}</p>
-                    <p
-                      className={`text-sm px-2 py-1 rounded-md ${
-                        record.statusOfCall === "Complete"
-                          ? "bg-green-500 text-white"
-                          : record.statusOfCall === "Incomplete"
-                          ? "bg-red-500 text-white"
-                          : record.statusOfCall === "Requested"
-                          ? "bg-blue-500 text-white"
-                          : record.statusOfCall === "To Bill"
-                          ? "bg-blue-500 text-white"
-                          : "bg-yellow-500 text-black"
-                      }`}
-                    >
-                      Status: {record.statusOfCall}
-                    </p>
-                    <p className="text-sm text-gray-500">Token num: {record.tokenNumber}</p>
-                    <p className="text-sm text-gray-500">Date: {formatDate(record.callTime)}</p>
-                  </div>
-                  {/* Options Button */}
-                  <div className="relative">
+          .filter((record) => record.assignedTo === "Resource 1")
+          .filter((record) => {
+            if (!showTodayOnly) return true;
+        
+            const today = new Date();
+            const callDate = new Date(record.callTime);
+            return (
+              today.getDate() === callDate.getDate() &&
+              today.getMonth() === callDate.getMonth() &&
+              today.getFullYear() === callDate.getFullYear()
+            );
+          })
+          .map((record) => (
+            <div key={record._id} className="px-4 py-4 sm:px-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-lg font-semibold text-gray-900">{record.company}</p>
+                  <p className="text-sm text-gray-500">Phone: {record.phoneNumber}</p>
+                  <p className="text-sm font-semibold text-gray-700">Caller Name: {record.callerName}</p>
+                  <p className="text-sm text-gray-500">Email: {record.email}</p>
+
+                  <p className="text-sm text-gray-500">Serial Number: {record.serialNumber}</p>
+                  <p className="text-sm text-gray-500">Type Of Service: {record.typeOfService}</p>
+                  <p className="text-sm text-gray-500">Reason: {record.reason}</p>
+                  <p className="text-sm text-gray-500">Assigned to: {record.assignedTo}</p>
+                  <p
+                    className={`text-sm px-2 py-1 rounded-md ${
+                      record.statusOfCall === "Complete"
+                        ? "bg-green-500 text-white"
+                        : record.statusOfCall === "Incomplete"
+                        ? "bg-red-500 text-white"
+                        : record.statusOfCall === "Requested"
+                        ? "bg-blue-500 text-white"
+                        : record.statusOfCall === "To Bill"
+                        ? "bg-blue-500 text-white"
+                        : "bg-yellow-500 text-black"
+                    }`}
+                  >
+                    Status: {record.statusOfCall}
+                  </p>
+
+                  <p className="text-sm text-gray-500">Token num: {record.tokenNumber}</p>
+                  <p className="text-sm text-gray-500">Date: {formatDate(record.callTime)}</p>
+                </div>
+
+                {/* Options Button */}
+                <div className="relative">
                   <button
                     onClick={() => setShowOptionsForRecord(showOptionsForRecord === record._id ? null : record._id)}
                     className="px-3 py-1 bg-gray-200 text-black rounded-md hover:bg-gray-300"
@@ -1084,82 +1390,406 @@ const dropdownRef = useRef(null);
 
                       
                       <button
+  onClick={() => setEditingSerial(record._id)}
+  className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
+>
+  Update Serial number
+</button>
+{editingSerial === record._id && (
+  <div className="block w-full px-4 py-2 text-left text-sm">
+    <input
+      type="text"
+      placeholder="Enter new serial number"
+      className="w-full px-3 py-1 border rounded-md"
+      value={serialInput}
+      onChange={(e) => setSerialInput(e.target.value)}
+    />
+    
+    {/* Warning message */}
+    {serialInput.length !== 9 && (
+      <p className="text-red-600 text-sm mt-1">Serial number must be exactly 9 digits.</p>
+    )}
+
+    <button
+      onClick={() => {
+        if (serialInput.length === 9) {
+          changeSerialNumber(record._id, serialInput);
+        }
+      }}
+      className={`mt-2 px-3 py-1 rounded-md text-white ${serialInput.length === 9 ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}
+      disabled={serialInput.length !== 9}
+    >
+      Save
+    </button>
+  </div>
+)}
+
+<button
+  onClick={() => setEditingEmail(record._id)}
+  className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
+>
+  update email
+</button>
+{editingEmail === record._id && (
+  <div className="block w-full px-4 py-2 text-left text-sm">
+    <input
+      type="email"
+      placeholder="Enter new email"
+      className="w-full px-3 py-1 border rounded-md"
+      value={emailInput}
+      onChange={(e) => setEmailInput(e.target.value)}
+    />
+    <button
+      onClick={() => changeEmail(record._id, emailInput)}
+      className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+    >
+      Save
+    </button>
+  </div>
+)}
+
+
+                      
+                      
+                      <button
                         onClick={() => changeStatusOfCall(record._id, "Complete")}
                         className="block w-full px-4 py-2 text-left text-sm text-green-500 bg-white rounded-md hover:bg-gray-100"
                       >
                         Mark Call as Completed
                       </button>
+                      
 
                      
                     </div>
                   )}
                 </div>
-                </div>
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       </div>
     </div>
   </div>
 )}
 
-{activeView === "table" && (
+          
+              {/* Table View */}
+              {activeView === "table" && (
   <div className="overflow-x-auto ">
-    <div className="overflow-y-auto max-h-[600px]">
-      <table className="min-w-6xl ml-10 bg-white shadow-md rounded-lg">
-        <thead className="bg-indigo-600 bg-opacity-85 text-white rounded-xl">
-          <tr>
-            <th className="px-2 py-1 text-left border-r font-medium">Sl. No.</th>
-            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("company")}>
-              Company {renderSortArrow("company")}
-            </th>
-            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("callerName")}>
-              Caller Name {renderSortArrow("callerName")}
-            </th>
-            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("phoneNumber")}>
-              Phone Number {renderSortArrow("phoneNumber")}
-            </th>
-            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("serialNumber")}>
-              Serial Number {renderSortArrow("serialNumber")}
-            </th>
-            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("typeOfService")}>
-              Type of Service {renderSortArrow("typeOfService")}
-            </th>
-            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("assignedTo")}>
-              Assigned To {renderSortArrow("assignedTo")}
-            </th>
-            <th className="px-2 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("callTime")}>
-              Date {renderSortArrow("callTime")}
-            </th>
-            <th className="px-3 py-1 text-left border-r font-medium cursor-pointer" onClick={() => handleSort("statusOfCall")}>
-              Status {renderSortArrow("statusOfCall")}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedRecords
-            .filter((record) => record.assignedTo === "Resource 1")
-            .map((record, index) => (
-              <tr key={record._id} className="hover:text-indigo-600 hover:font-semibold hover:border-l-indigo-600 hover:z-auto transition ease-in-out">
-                <td className="px-2 py-1 font-semibold border-t">{(currentPage - 1) * recordsPerPage + index + 1}</td>
-                <td className="px-2 py-1 font-semibold border-t">{record.company}</td>
-                <td className="px-2 py-1 border-t">{record.callerName}</td>
-                <td className="px-2 py-1 border-t">{record.phoneNumber}</td>
-                <td className="px-2 py-1 border-t">{record.serialNumber}</td>
-                <td className="px-2 py-1 border-t">{record.typeOfService}</td>
-                <td className="px-2 py-1 border-t">{record.assignedTo}</td>
-                <td className="px-2 py-1 border-t">{formatDate(record.callTime)}</td>
-                <td className={`px-3 py-1 border-t text-sm ${record.statusOfCall === "Complete" ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}>
-                  {record.statusOfCall}
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
-    </div>
+    <div className="">
+    {/* Search Section */}
+    
+
+    <table className="min-w-6xl ml-10 bg-white shadow-md rounded-lg">
+      <thead className="bg-indigo-700 bg-opacity-85 text-white rounded-xl">
+        <tr>
+          <th className="px-2 py-1 text-left border-r font-medium">Sl. No.</th>
+          <th
+            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
+            onClick={() => handleSort("company")}
+          >
+            Company {renderSortArrow("company")}
+          </th>
+          <th
+            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
+            onClick={() => handleSort("callerName")}
+          >
+            Caller Name {renderSortArrow("callerName")}
+          </th>
+          <th
+            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
+            onClick={() => handleSort("phoneNumber")}
+          >
+            Phone Number {renderSortArrow("phoneNumber")}
+          </th>
+          <th
+            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
+            onClick={() => handleSort("serialNumber")}
+          >
+            Serial Number {renderSortArrow("serialNumber")}
+          </th>
+          <th
+            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
+            onClick={() => handleSort("typeOfService")}
+          >
+            Type of Service {renderSortArrow("typeOfService")}
+          </th>
+          <th
+            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
+            onClick={() => handleSort("assignedTo")}
+          >
+            Assigned To {renderSortArrow("assignedTo")}
+          </th>
+          <th
+            className="px-2 py-1 text-left border-r font-medium cursor-pointer"
+            onClick={() => handleSort("callTime")}
+          >
+            Date {renderSortArrow("callTime")}
+          </th>
+          <th
+            className="px-3 py-1 text-left border-r font-medium cursor-pointer"
+            onClick={() => handleSort("statusOfCall")}
+          >
+            Status {renderSortArrow("statusOfCall")}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {paginatedRecords
+        .filter((record) => record.assignedTo === "Resource 1")
+        
+          .filter((record) => {
+            const searchValue = searchQuery.toLowerCase();
+            if (searchBy === "company") {
+              return record.company && record.company.toLowerCase().includes(searchValue);
+            }
+            if (searchBy === "phoneNumber") {
+              return record.phoneNumber && record.phoneNumber.toLowerCase().includes(searchValue);
+            }
+            if (searchBy === "serialNumber") {
+              return record.serialNumber && record.serialNumber.toLowerCase().includes(searchValue);
+            }
+            return true;
+          })
+          .filter((record) => {
+            if (!showTodayOnly) return true;
+        
+            const today = new Date();
+            const callDate = new Date(record.callTime);
+            return (
+              today.getDate() === callDate.getDate() &&
+              today.getMonth() === callDate.getMonth() &&
+              today.getFullYear() === callDate.getFullYear()
+            );
+          })
+          .map((record, index) => (
+            <tr
+              key={record._id}
+              className="hover:text-indigo-600 overflow-y-auto max-h-[1000px] hover:font-semibold hover:border-l-indigo-600 hover:z-auto transition ease-in-out"
+            >
+              <td className="px-2 py-1 font-semibold border-t">
+                    {(currentPage - 1) * recordsPerPage + index + 1}
+                  </td>
+
+              <td className="px-2 py-1 font-semibold border-t">{record.company}</td>
+              <td className="px-2 py-1 border-t">{record.callerName}</td>
+              <td className="px-2 py-1 border-t">{record.phoneNumber}</td>
+              <td className="px-2 py-1 border-t">{record.serialNumber}</td>
+              <td className="px-2 py-1 border-t">{record.typeOfService}</td>
+              <td className="px-2 py-1 border-t">{record.assignedTo}</td>
+              <td className="px-2 py-1 border-t">{formatDate(record.callTime)}</td>
+              <td
+                className={`px-3 py-1 border-t text-sm ${
+                  record.statusOfCall === "Complete"
+                    ? "text-green-600 bg-green-100"
+                    : record.statusOfCall === "Incomplete"
+                    ? "text-red-600 bg-red-100"
+                    : record.statusOfCall === "To Bill"
+                    ? "text-orange-600 bg-orange-100"
+                    : record.statusOfCall === "Requested"
+                    ? "text-indigo-600 bg-indigo-100"
+                    : "text-yellow-800 bg-yellow-100"
+                }`}
+              >
+                {record.statusOfCall}
+              </td>
+              <td className="px-3 py-1 z-40 align-top">
+ {/* Added z-40 here */}
+  <button
+    onClick={() =>
+      setShowOptionsForRecord(
+        showOptionsForRecord === record._id ? null : record._id
+      )
+    }
+    className="flex items-center gap-2 px-3 py-1 text-indigo-600 border-none shadow-none rounded-md hover:bg-gray-100"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="w-5 h-5"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16.862 3.487a2.25 2.25 0 113.182 3.182L7.5 19.213l-4.125.458.458-4.125L16.862 3.487z"
+      />
+    </svg>
+  </button>
+
+  {/* Options Menu */}
+  {showOptionsForRecord === record._id && (
+   <div
+   ref={dropdownRef}
+   className="relative mt-1 w-60 bg-white rounded-md shadow-xl z-50"
+ >
+ 
+      <button
+        onClick={() => setEditingStatus(record._id)}
+        className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
+      >
+        Change status
+      </button>
+
+      {editingStatus === record._id && (
+        <div className="block w-full px-4 py-2 text-left text-sm">
+          <input
+            type="text"
+            placeholder="Enter new status"
+            className="w-full px-3 py-1 border rounded-md"
+            value={statusInput}
+            onChange={(e) => setStatusInput(e.target.value)}
+          />
+          <button
+  onClick={() => {
+    changeStatusOfCall(record._id, statusInput);
+    setShowOptionsForRecord(null); // Close dropdown
+  }}
+  className="mt-2 px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
+>
+  Save
+</button>
+
+        </div>
+      )}
+
+     
+
+      <button
+        onClick={() => setEditingSerial(record._id)}
+        className="block w-full px-4 py-2 text-left text-sm text-blue-600 hover:bg-gray-100"
+      >
+        Update Serial number
+      </button>
+
+      {editingSerial === record._id && (
+  <div className="block w-full px-4 py-2 text-left text-sm">
+    <input
+      type="text"
+      placeholder="Enter new serial number"
+      className="w-full px-3 py-1 border rounded-md"
+      value={serialInput}
+      onChange={(e) => setSerialInput(e.target.value)}
+    />
+    
+    {/* Warning message */}
+    {serialInput.length !== 9 && (
+      <p className="text-red-600 text-sm mt-1">Serial number must be exactly 9 digits.</p>
+    )}
+
+    <button
+      onClick={() => {
+        if (serialInput.length === 9) {
+          changeSerialNumber(record._id, serialInput);
+        }
+      }}
+      className={`mt-2 px-3 py-1 rounded-md text-white ${serialInput.length === 9 ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}
+      disabled={serialInput.length !== 9}
+    >
+      Save
+    </button>
   </div>
 )}
 
+
+      <button
+        onClick={() => {
+          changeStatusOfCall(record._id, "To Bill");
+          setShowOptionsForRecord(null); // Close dropdown
+        }}
+        className="block w-full px-4 py-2 text-left text-sm text-orange-500 bg-white rounded-md hover:bg-gray-100"
+      >
+        To be billed
+      </button>
+
+      <button
+        onClick={() => {
+          const isAnyFieldEmpty =
+            !record.company ||
+            !record.callerName ||
+            !record.phoneNumber ||
+            !record.serialNumber ||
+            !record.typeOfService ||
+            !record.assignedTo ||
+            !record.callTime ||
+            !record.statusOfCall;
+        
+          if (isAnyFieldEmpty) {
+            alert("Please ensure all fields are filled before marking the call as completed.");
+            return;
+          }
+        
+          changeStatusOfCall(record._id, "Complete");
+          setShowOptionsForRecord(null); // Close dropdown
+        }}
+        
+        className="block w-full px-4 py-2 text-left text-sm text-green-500 bg-white rounded-md hover:bg-gray-100"
+      >
+        Mark Call as Completed
+      </button>
+
+      
+    </div>
+  )}
+</td>
+
+            </tr>
+          ))}
+      </tbody>
+    </table>
+  </div>
+  <div className="flex justify-center items-center mt-4">
+  <button
+    onClick={() => handlePageChange(currentPage - 1)}
+    disabled={currentPage === 1}
+    className="px-3 py-1 bg-white text-indigo-600  disabled:text-gray-300"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="w-5 h-5"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15 19l-7-7 7-7"
+      />
+    </svg>
+  </button>
+
+  <span className="text-sm">
+    {currentPage} / {totalPages}
+  </span>
+
+  <button
+    onClick={() => handlePageChange(currentPage + 1)}
+    disabled={currentPage === totalPages}
+    className="px-3 py-1 text-indigo-600 rounded-md disabled:text-gray-300"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="w-5 h-5"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 5l7 7-7 7"
+      />
+    </svg>
+  </button>
+</div>
+
+  </div>
+)}
 
     
 

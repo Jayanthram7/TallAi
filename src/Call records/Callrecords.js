@@ -968,8 +968,9 @@ const dropdownRef = useRef(null);
   </svg>
   Sheet View
 </button>
-<div className="flex justify-center items-center h-12 gap-4 mr-2 w-full max-w-lg">
+<div className="flex justify-center items-center h-12 gap-4 mr-2 w-full max-w-lg relative">
   <div className="flex items-center w-full h-12 border bg-white border-gray-400 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden">
+    
     {/* Search Icon */}
     <div className="flex items-center px-3 bg-white">
       <svg
@@ -985,23 +986,30 @@ const dropdownRef = useRef(null);
           strokeWidth={2}
           d="M11 4a7 7 0 015.657 11.657l3.086 3.086a1 1 0 01-1.414 1.414l-3.086-3.086A7 7 0 1111 4z"
         />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M16 16l4 4"
-        />
       </svg>
     </div>
 
     {/* Input Field */}
     <input
       type="text"
-      placeholder="Search Entry "
+      placeholder="Search Entry"
       value={searchQuery}
       onChange={handleSearch}
-      className="flex-grow pl-2 pr-2 h-full focus:outline-none placeholder-gray-500"
+      className="flex-grow pl-2 pr-8 h-full focus:outline-none placeholder-gray-500"
     />
+
+    {/* Clear (X) Button */}
+    {searchQuery && (
+      <button
+        onClick={() => {
+          setSearchQuery("");
+          setSearchBy("company");
+        }}
+        className="absolute right-44 text-xl text-gray-500 hover:text-red-500"
+      >
+        x
+      </button>
+    )}
 
     {/* Select Dropdown */}
     <select
@@ -1012,10 +1020,10 @@ const dropdownRef = useRef(null);
       <option value="company">Company Name</option>
       <option value="phoneNumber">Phone Number</option>
       <option value="serialNumber">Serial Number</option>
-    
     </select>
   </div>
 </div>
+
 
 
 
