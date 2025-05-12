@@ -1713,22 +1713,99 @@ const dropdownRef = useRef(null);
   <div className="fixed inset-0 flex justify-center items-center z-50 pointer-events-none">
     <div
       className="bg-white p-6 rounded-md w-96 shadow-xl pointer-events-auto transition duration-300 ease-in-out transform translate-y-0 opacity-100"
-      style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.01)' }} // reduced opacity
+      style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)' }}
     >
       <h2 className="text-lg font-semibold mb-4">Pack Information</h2>
 
-      {["companyName", "flavour", "serialNo", "email", "name", "mobileNo", "gst", "timePeriod"].map((field) => (
-        <input
-          key={field}
-          type="text"
-          placeholder={field.replace(/([A-Z])/g, " $1")}
-          className="w-full px-3 py-1 mb-2 border rounded-md"
-          value={packFormData[field]}
-          onChange={(e) =>
-            setPackFormData({ ...packFormData, [field]: e.target.value })
-          }
-        />
+      {[
+        "companyName",
+        "email",
+        "name"
+      ].map((field) => (
+        <div key={field}>
+          <input
+            type="text"
+            placeholder={field.replace(/([A-Z])/g, " $1")}
+            className="w-full px-3 py-1 mb-1 border rounded-md"
+            value={packFormData[field]}
+            onChange={(e) => setPackFormData({ ...packFormData, [field]: e.target.value })}
+          />
+          {!packFormData[field] && <p className="text-red-500 text-xs mb-2">This field is required</p>}
+        </div>
       ))}
+
+      {/* Flavour */}
+      <div>
+        <select
+          value={packFormData.flavour}
+          className="w-full px-3 py-1 mb-1 border rounded-md"
+          onChange={(e) => setPackFormData({ ...packFormData, flavour: e.target.value })}
+        >
+          <option value="">Select Flavour</option>
+          <option value="Gold">Gold</option>
+          <option value="Silver">Silver</option>
+          <option value="Auditor">Auditor</option>
+        </select>
+        {!packFormData.flavour && <p className="text-red-500 text-xs mb-2">Flavour is required</p>}
+      </div>
+
+      {/* Serial No */}
+      <div>
+        <input
+          type="text"
+          placeholder="Serial No"
+          className="w-full px-3 py-1 mb-1 border rounded-md"
+          value={packFormData.serialNo}
+          onChange={(e) => setPackFormData({ ...packFormData, serialNo: e.target.value })}
+        />
+        {packFormData.serialNo.length !== 9 && (
+          <p className="text-red-500 text-xs mb-2">Serial No must be exactly 9 digits</p>
+        )}
+      </div>
+
+      {/* Mobile No */}
+      <div>
+        <input
+          type="text"
+          placeholder="Mobile No"
+          className="w-full px-3 py-1 mb-1 border rounded-md"
+          value={packFormData.mobileNo}
+          onChange={(e) => setPackFormData({ ...packFormData, mobileNo: e.target.value })}
+        />
+        {packFormData.mobileNo.length >= 11 && (
+          <p className="text-red-500 text-xs mb-2">Mobile number must be less than 10 digits</p>
+        )}
+      </div>
+
+      {/* GST */}
+      <div>
+        <input
+          type="text"
+          placeholder="GST"
+          className="w-full px-3 py-1 mb-1 border rounded-md"
+          value={packFormData.gst}
+          onChange={(e) => setPackFormData({ ...packFormData, gst: e.target.value })}
+        />
+        {packFormData.gst.length !== 15 && (
+          <p className="text-red-500 text-xs mb-2">GST must be exactly 15 characters</p>
+        )}
+      </div>
+
+      {/* Time Period */}
+      <div>
+        <select
+          value={packFormData.timePeriod}
+          className="w-full px-3 py-1 mb-1 border rounded-md"
+          onChange={(e) => setPackFormData({ ...packFormData, timePeriod: e.target.value })}
+        >
+          <option value="">Select Time Period</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+        </select>
+        {!packFormData.timePeriod && (
+          <p className="text-red-500 text-xs mb-2">Time period is required</p>
+        )}
+      </div>
 
       <div className="flex justify-end gap-2 mt-4">
         <button
@@ -1739,22 +1816,56 @@ const dropdownRef = useRef(null);
         </button>
 
         <button
-          onClick={() => {
-            axios
-              .post(`https://backend-copy-1.onrender.com/api/pack-form`, {
-                recordId: packFormRecordId,
-                ...packFormData
-              })
-              .then(() => setPackFormRecordId(null));
-          }}
-          className="px-4 py-1 bg-green-600 text-white rounded-md"
-        >
-          Save
-        </button>
+  onClick={() => {
+    const {
+      companyName,
+      flavour,
+      serialNo,
+      email,
+      name,
+      mobileNo,
+      gst,
+      timePeriod
+    } = packFormData;
+
+    const isValid =
+      companyName &&
+      flavour &&
+      serialNo.length === 9 &&
+      email &&
+      name &&
+      mobileNo.length === 10 &&
+      gst.length === 15 &&
+      timePeriod;
+
+    if (!isValid) {
+      alert("All fields must be correctly filled before saving.");
+      return;
+    }
+
+    axios
+      .post(`https://backend-copy-1.onrender.com/api/pack-form`, {
+        recordId: packFormRecordId,
+        ...packFormData
+      })
+      .then(() => {
+        // ✅ Set the form modal to null
+        setPackFormRecordId(null);
+
+        // ✅ Update the call status to "Complete"
+        changeStatusOfCall(packFormRecordId, "Complete");
+      });
+  }}
+  className="px-4 py-1 bg-green-600 text-white rounded-md"
+>
+  Save
+</button>
+
       </div>
     </div>
   </div>
 )}
+
 
 
 
