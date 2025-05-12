@@ -11,6 +11,51 @@ const CallRecords = () => {
   const [editingEmail, setEditingEmail] = useState(null);
   const [emailInput, setEmailInput] = useState('');
   const [showTodayOnly, setShowTodayOnly] = useState(false);
+  const [packFormData, setPackFormData] = useState({
+    companyName: "",
+    flavour: "",
+    serialNo: "",
+    email: "",
+    name: "",
+    mobileNo: "",
+    gst: "",
+    timePeriod: ""
+  });
+  const [packFormRecordId, setPackFormRecordId] = useState(null);
+  const handleEyeClick = (id) => {
+    setPackFormRecordId(id);
+  
+    axios.get(`https://backend-copy-1.onrender.com/api/pack-form/${id}`)
+      .then((res) => {
+        if (res.data) {
+          const data = res.data;
+          setPackFormData({
+            companyName: data.companyName || "",
+            flavour: data.flavour || "",
+            serialNo: data.serialNo || "",
+            email: data.email || "",
+            name: data.name || "",
+            mobileNo: data.mobileNo || "",
+            gst: data.gst || "",
+            timePeriod: data.timePeriod || ""
+          });
+        } else {
+          setPackFormData({
+            companyName: "", flavour: "", serialNo: "", email: "",
+            name: "", mobileNo: "", gst: "", timePeriod: ""
+          });
+        }
+      })
+      .catch(() => {
+        setPackFormData({
+          companyName: "", flavour: "", serialNo: "", email: "",
+          name: "", mobileNo: "", gst: "", timePeriod: ""
+        });
+      });
+  };
+  
+  
+  
 
   
 
@@ -1613,8 +1658,10 @@ const dropdownRef = useRef(null);
           .map((record, index) => (
             <tr
               key={record._id}
-              className="hover:text-indigo-600 overflow-y-auto max-h-[1000px] hover:font-semibold hover:border-l-indigo-600 hover:z-auto transition ease-in-out"
+              className="hover:text-indigo-600 overflow-y-auto max-h-[1000px] hover:border-l-indigo-600 hover:z-auto transition ease-in-out"
             >
+              
+
               <td className="px-2 py-1 font-semibold border-t">
                     {(currentPage - 1) * recordsPerPage + index + 1}
                   </td>
@@ -1641,6 +1688,76 @@ const dropdownRef = useRef(null);
               >
                 {record.statusOfCall}
               </td>
+              <td className="px-2 py-1 font-semibold border-t flex items-center gap-2">
+  {(record.typeOfService === "New Pack" || record.typeOfService === "TSS") && (
+    <button onClick={() => handleEyeClick(record._id)} className="text-indigo-600 hover:text-indigo-800">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  </button>
+  
+  )}
+  
+</td>
+{packFormRecordId && (
+  <div className="fixed inset-0 flex justify-center items-center z-50 pointer-events-none">
+    <div
+      className="bg-white p-6 rounded-md w-96 shadow-xl pointer-events-auto transition duration-300 ease-in-out transform translate-y-0 opacity-100"
+      style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.01)' }} // reduced opacity
+    >
+      <h2 className="text-lg font-semibold mb-4">Pack Information</h2>
+
+      {["companyName", "flavour", "serialNo", "email", "name", "mobileNo", "gst", "timePeriod"].map((field) => (
+        <input
+          key={field}
+          type="text"
+          placeholder={field.replace(/([A-Z])/g, " $1")}
+          className="w-full px-3 py-1 mb-2 border rounded-md"
+          value={packFormData[field]}
+          onChange={(e) =>
+            setPackFormData({ ...packFormData, [field]: e.target.value })
+          }
+        />
+      ))}
+
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          onClick={() => setPackFormRecordId(null)}
+          className="px-4 py-1 bg-gray-400 text-white rounded-md"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={() => {
+            axios
+              .post(`https://backend-copy-1.onrender.com/api/pack-form`, {
+                recordId: packFormRecordId,
+                ...packFormData
+              })
+              .then(() => setPackFormRecordId(null));
+          }}
+          className="px-4 py-1 bg-green-600 text-white rounded-md"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
               <td className="px-3 py-1 z-40 align-top">
  {/* Added z-40 here */}
   <button
