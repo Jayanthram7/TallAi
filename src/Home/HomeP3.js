@@ -642,15 +642,13 @@ const dropdownRef = useRef(null);
           <rect fill="url(#e813992c-7d03-4cc4-a2bd-151760b470a0)" width="100%" height="100%" strokeWidth={0} />
         </svg>
       </div>
-        <div className="grid grid-cols-12  justify-center">
-          <div className="col-span-3 justify-center text-center ml-20 items-center">
-            <h1 className="justify-center mt-48 text-center text-pretty text-3xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
-              Call <span className="text-indigo-500">Center.</span>
+        <div className="grid ">
+          <div className="flex justify-center text-center ml-20 items-center">
+            <h1 className="justify-center text-center mb-4 text-pretty text-3xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
+              Call <span className="text-indigo-500 ">Center.</span>
             </h1>
-            <p className="mt-2 justify-center text-center text-xl font-light text-black sm:text-xl">
-              Log and view your Call entries
-            </p>
-            <div className="flex justify-center gap-4 mt-3 mb-4">
+            
+            <div className="flex justify-center gap-4 mt-3 ml-3 mb-4">
               <button
                 onClick={() => setActiveTab("add")}
                 className={`px-7 py-3 font-semibold rounded-md ${
@@ -674,7 +672,7 @@ const dropdownRef = useRef(null);
             </div>
           </div>
 
-          <div className="col-span-9">
+          <div className="col-span-9 ml-20">
             {activeTab === "add" && (
               <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-6 border border-gray-300">
               <div className="flex justify-between items-center mb-6">
@@ -937,7 +935,7 @@ const dropdownRef = useRef(null);
             
               <button
   onClick={() => handleViewToggle("table")}
-  className={`flex items-center gap-1 px-2  h-12  rounded-md ${
+  className={`flex items-center gap-1 px-2  h-12  ml-8 rounded-md ${
     activeView === "table"
       ? "bg-indigo-600 text-white"
       : "bg-gray-200 text-gray-600"
@@ -1555,7 +1553,7 @@ const dropdownRef = useRef(null);
         </tr>
       </thead>
       <tbody>
-        {paginatedRecords
+        {filteredRecords
         .filter((record) => record.assignedTo === "Sathish")
         
           .filter((record) => {
