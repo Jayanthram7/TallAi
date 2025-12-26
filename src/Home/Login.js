@@ -11,7 +11,7 @@ export default function SignIn() {
   // Form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("HANDLE SUBMIT TRIGGERED");
+    
   
     try {
       const response = await fetch('https://backend-copy-1.onrender.com/api/login', { // Replace with your API endpoint
