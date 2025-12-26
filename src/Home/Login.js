@@ -37,9 +37,7 @@ export default function SignIn() {
           navigate('/homeEmp4'); // Navigate to /homeEmp1
         }else if (email === 'adventemp5@gmail.com') {
           navigate('/homeEmp5'); // Navigate to /homeEmp1
-        }else if (password === 'advent123') {
-          navigate('/home2'); // Navigate to /home2
-        }else if (password === 'mmn@141318') {
+        }else if (password === 'MMN@141318taiadvJRK@181104') {
           navigate('/home2'); // Navigate to /home2
         } else {
           navigate('/home1'); // Navigate to /home1
