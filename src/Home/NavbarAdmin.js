@@ -7,10 +7,12 @@ import logo from "../Assets/logo.jpg"; // Ensure this path is correct
 
 const navigation = [
   { name: "Dashboard", path: "/home2", current: false }, // Updated path to point to /home
-  { name: "Invoice to Tally", path: "https://tallai-invoice.lovable.app/", current: false },
-  { name: "Data Visualization", path: "https://v0-next-js-charts-jikzd8zeied-xntvx6.vercel.app/", current: false },
+  
   { name: "Call Records", path: "/call-records", current: false }, // Update to use path
 ];
+
+//{ name: "Invoice to Tally", path: "https://tallai-invoice.lovable.app/", current: false },
+ // { name: "Data Visualization", path: "https://v0-next-js-charts-jikzd8zeied-xntvx6.vercel.app/", current: false },
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
