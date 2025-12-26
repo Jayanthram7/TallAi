@@ -21,8 +21,7 @@ export default function SignIn() {
       });
   
       const result = await response.json();
-      console.log(result);
-      console.log(password === 'mmn@141318', password);
+      
 
   
       if (response.ok) {
