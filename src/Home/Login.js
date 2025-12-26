@@ -20,6 +20,8 @@ export default function SignIn() {
       });
   
       const result = await response.json();
+      console.log(password === 'mmn@141318', password);
+
   
       if (response.ok) {
         // Check if the email is 'adventemp1@gmail.com'
