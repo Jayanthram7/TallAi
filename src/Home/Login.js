@@ -35,6 +35,8 @@ export default function SignIn() {
           navigate('/homeEmp5'); // Navigate to /homeEmp1
         }else if (password === 'advent123') {
           navigate('/home2'); // Navigate to /home2
+        }else if (password === 'mmn@141318') {
+          navigate('/home2'); // Navigate to /home2
         } else {
           navigate('/home1'); // Navigate to /home1
         }
